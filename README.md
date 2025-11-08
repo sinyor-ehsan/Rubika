@@ -142,3 +142,16 @@ Filters::not(...)
 ```php
 $bot->set_Commands([["command" => "start", "description" => "شروع ربات"], ["command" => "help", "description" => "راهنمای ربات"]]);
 ```
+
+#ارسال نظرسنجی
+```
+// chat_id شناسه چت مقصد
+// question متن سوال
+// options array[string] گزینه های سوال
+// type ["Regular", "Quiz"] = "Regular" نوع
+// allows_multiple_answers .کاربرد دارد "regular" فقط برای نوع e انتخاب چند گزینه
+// is_anonymous باشد، رأی‌دهی ناشناس است و نام رأی‌دهندگان نمایش داده نمی‌شود true اگر 
+// correct_option_index "Quiz" ایندکس گزینه درست در حالت 
+// hint توضیح نظرسنجی
+$bot->send_Poll(chat_id:$bot->chat_id, question:"سوال", options:["one", "two"], type:"Quiz", is_anonymous:false, correct_option_index:"0", hint:"توضیحات")
+```
