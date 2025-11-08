@@ -127,6 +127,7 @@ $bot->onMessage(Filters::and(Filters::private(), Filters::command("start")), fun
 # انواع فیلترها
 ```php
 Filters::text("")
+Filters::regex("")
 Filters::command("")
 Filters::chatId("")
 Filters::senderId("")
