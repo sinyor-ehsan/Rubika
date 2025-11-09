@@ -5,6 +5,7 @@ Botkaplus Library for rubika bots.
 # Botkaplus
   <img align="center" width="200" height="200" src="https://rubika.ir/static/images/logo.svg"/>
 Botkaplus Library for rubika bots.
+
 باتکاپلاس کتابخانه ای برای بات های روبیکا
 
 # 📦 نصب و راه‌ اندازی
