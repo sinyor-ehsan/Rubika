@@ -56,7 +56,7 @@ class BotClient {
         $this->token = $token;
         $this->rData = $rData;
         $this->url_webhook = $url_webhook;
-        if ($url_webhook !== null) {$this->set_Webhook($url_webhook);}
+        if ($url_webhook !== null) {$this->setWebhook($url_webhook);}
         if ($rData !== null) {$this->get_rData($rData);}
     }
 
@@ -98,7 +98,7 @@ class BotClient {
 
     }
 
-    public function set_Webhook($url_webhook) {
+    public function setWebhook($url_webhook) {
         echo "fix endpoint Rubika\n";
         $endpoints = [
             "ReceiveUpdate",
@@ -107,13 +107,28 @@ class BotClient {
             "GetSelectionItem",
             "SearchSelectionItems"
         ];
+        
         foreach ($endpoints as $endpoint) {
             $data = [
                 "url" => $url_webhook,
                 "type" => $endpoint
             ];
-            return $this->bot("updateBotEndpoints", $data);
+
+            try {
+                $response = json_decode($this->bot("updateBotEndpoints", $data));
+                echo $endpoint . ":\n";
+                if ($response->status === "ok") {
+                    echo "   ✅ done - status: " . $response->data->status . "\n";
+                } else {
+                        echo "eror - status: " . $response . "\n";
+                }
+            } catch (\Exception $e) {
+                echo $endpoint . ":\n";
+                echo "   ❌ eror Network: " . $e->getMessage() . PHP_EOL . "\n";
+            }
+            usleep(500000);
         }
+        echo "the end!";
     }
 
     // ثبت هندلر
