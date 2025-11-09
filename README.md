@@ -91,7 +91,7 @@ $keypad->addRow([
 ]);
 
 $inline_keypad = $keypad->build();
-$message->reply_Message("send inline keypad!", $inline_keypad);
+$message->replyMessage("send inline keypad!", $inline_keypad);
 ```
 
 # ارسال اینلاین Button
@@ -115,7 +115,7 @@ $chat_keypad->setResizeKeyboard(true);
 $chat_keypad->setOnTimeKeyboard(true);
 
 $chat_keypad = $chat_keypad->build();
-$message->reply_Message("send chat keypad!", chat_keypad:$chat_keypad);
+$message->replyMessage("send chat keypad!", chat_keypad:$chat_keypad);
 ```
 
 # ادامه ندادن به هندلرهای بعدی
@@ -126,7 +126,7 @@ $bot->stopPropagation()
 # فیلتر text
 ```php
 $bot->onMessage(Filters::text("hello"), function(BotClient $bot, Message $message){
-    $message->reply_Message("hello from Botkaplus!");
+    $message->replyMessage("hello from Botkaplus!");
 });
 ```
 
