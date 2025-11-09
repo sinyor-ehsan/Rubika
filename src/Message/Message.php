@@ -70,92 +70,92 @@ class Message {
      * @param string $text متن پیام
      * @return stdClass شیء پاسخ از سرور. موفقیت یا شکست ارسال پیام
      */
-    public function reply_Message($text, $inline_keypad = null, $chat_keypad = null, $chat_keypad_type = "New") {
-        return $this->bot->send_Message($this->chat_id, $text, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id);
+    public function replyMessage($text, $inline_keypad = null, $chat_keypad = null, $chat_keypad_type = "New") {
+        return $this->bot->sendMessage($this->chat_id, $text, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id);
     }
 
-    public function reply_Poll(string $question, array $options, $type = "Regular", $allows_multiple_answers = null, $is_anonymous = true, $correct_option_index = null, $hint = null, $inline_keypad = null, $chat_keypad = null, $chat_keypad_type = "New") {
-        return $this->bot->send_Poll($this->chat_id, $question, $options, $type, $allows_multiple_answers, $is_anonymous, $correct_option_index, $hint, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id);
+    public function replyPoll(string $question, array $options, $type = "Regular", $allows_multiple_answers = null, $is_anonymous = true, $correct_option_index = null, $hint = null, $inline_keypad = null, $chat_keypad = null, $chat_keypad_type = "New") {
+        return $this->bot->sendPoll($this->chat_id, $question, $options, $type, $allows_multiple_answers, $is_anonymous, $correct_option_index, $hint, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id);
     }
 
-    public function reply_Location($latitude, $longitude, $inline_keypad = null, $chat_keypad = null, $chat_keypad_type = "New") {
-        return $this->bot->send_Location($this->chat_id, $latitude, $longitude, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id);
+    public function replyLocation($latitude, $longitude, $inline_keypad = null, $chat_keypad = null, $chat_keypad_type = "New") {
+        return $this->bot->sendLocation($this->chat_id, $latitude, $longitude, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id);
     }
 
-    public function reply_Contact($first_name, $last_name, $phone_number, $inline_keypad = null, $chat_keypad = null, $chat_keypad_type = "New") {
-        return $this->bot->send_Contact($this->chat_id, $first_name, $last_name, $phone_number, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id);
+    public function replyContact($first_name, $last_name, $phone_number, $inline_keypad = null, $chat_keypad = null, $chat_keypad_type = "New") {
+        return $this->bot->sendContact($this->chat_id, $first_name, $last_name, $phone_number, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id);
     }
 
     public function reply_Sticker($sticker_id, $inline_keypad = null, $chat_keypad = null, $chat_keypad_type = "New") {
-        return $this->bot->send_Sticker($this->chat_id, $sticker_id, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id);
+        return $this->bot->sendSticker($this->chat_id, $sticker_id, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id);
     }
 
-    public function get_Chat() {
-        return $this->bot->get_Chat(chat_id:$this->chat_id);
+    public function getChat() {
+        return $this->bot->getChat(chat_id:$this->chat_id);
     }
 
-    public function get_First_Name() {
-        $chat_info = json_decode($this->bot->get_Chat(chat_id:$this->chat_id));
+    public function getFirstName() {
+        $chat_info = json_decode($this->bot->getChat(chat_id:$this->chat_id));
         if ($chat_info->data->chat->chat_type == "User") {return $chat_info->data->chat->first_name ?? null;}
     }
 
-    public function get_Last_Name() {
-        $chat_info = json_decode($this->bot->get_Chat(chat_id:$this->chat_id));
+    public function getLastName() {
+        $chat_info = json_decode($this->bot->getChat(chat_id:$this->chat_id));
         if ($chat_info->data->chat->chat_type == "User") {return $chat_info->data->chat->last_name ?? null;}
     }
 
-    public function get_Username() {
-        $chat_info = json_decode($this->bot->get_Chat(chat_id:$this->chat_id));
+    public function getUsername() {
+        $chat_info = json_decode($this->bot->getChat(chat_id:$this->chat_id));
         if ($chat_info->data->chat->chat_type == "User") {return $chat_info->data->chat->username ?? null;}
     }
 
-    public function get_Group_Name() {
-        $chat_info = json_decode($this->bot->get_Chat(chat_id:$this->chat_id));
+    public function getGroupName() {
+        $chat_info = json_decode($this->bot->getChat(chat_id:$this->chat_id));
         if ($chat_info->data->chat->chat_type == "Group") {return $chat_info->data->chat->title ?? null;}
     }
 
-    public function get_Channel_Name() {
-        $chat_info = json_decode($this->bot->get_Chat(chat_id:$this->chat_id));
+    public function getChannelName() {
+        $chat_info = json_decode($this->bot->getChat(chat_id:$this->chat_id));
         if ($chat_info->data->chat->chat_type == "Channel") {return $chat_info->data->chat->title ?? null;}
     }
 
-    public function delete_Message($id_message = null) {
+    public function deleteMessage($id_message = null) {
         if ($id_message === null) {$id_message = $this->message_id;}
-        return $this->bot->delete_Message($this->chat_id, $id_message);
+        return $this->bot->deleteMessage($this->chat_id, $id_message);
     }
 
-    // public function reply_delete_Message
+    // public function replyDeleteMessage
 
-    public function delete_ChatKeypad() {
-        return $this->bot->delete_ChatKeypad($this->chat_id);
+    public function deleteChatKeypad() {
+        return $this->bot->deleteChatKeypad($this->chat_id);
     }
 
-    public function reply_File_by_id($file_id, $caption = null, $inline_keypad = null, $chat_keypad = null, $chat_keypad_type = "New") {
-        return $this->bot->send_File_by_id($this->chat_id, $file_id, $caption, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id);
+    public function replyFileById($file_id, $caption = null, $inline_keypad = null, $chat_keypad = null, $chat_keypad_type = "New") {
+        return $this->bot->sendFileById($this->chat_id, $file_id, $caption, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id);
     }
 
-    public function reply_File(?string $file_path = null, ?string $file_id = null, ?string $file_type = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New') {
-        return $this->bot->send_File($this->chat_id, $file_path, $file_id, $file_type, $caption, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id);
+    public function replyFile(?string $file_path = null, ?string $file_id = null, ?string $file_type = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New') {
+        return $this->bot->sendFile($this->chat_id, $file_path, $file_id, $file_type, $caption, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id);
     }
 
-    public function reply_Image(?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New') {
-        return $this->bot->send_Image($this->chat_id, $file_path, $file_id, $caption, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id);
+    public function replyImage(?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New') {
+        return $this->bot->sendImage($this->chat_id, $file_path, $file_id, $caption, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id);
     }
 
     public function reply_Voice(?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New') {
-        return $this->bot->send_Voice($this->chat_id, $file_path, $file_id, $caption, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id);
+        return $this->bot->sendVoice($this->chat_id, $file_path, $file_id, $caption, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id);
     }
 
-    public function reply_Music(?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New') {
-        return $this->bot->send_Music($this->chat_id, $file_path, $file_id, $caption, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id);
+    public function replyMusic(?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New') {
+        return $this->bot->sendMusic($this->chat_id, $file_path, $file_id, $caption, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id);
     }
 
-    public function reply_Gif(?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New') {
-        return $this->bot->send_Gif($this->chat_id, $file_path, $file_id, $caption, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id);
+    public function replyGif(?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New') {
+        return $this->bot->sendGif($this->chat_id, $file_path, $file_id, $caption, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id);
     }
 
-    public function reply_Video(?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New') {
-        return $this->bot->send_Video($this->chat_id, $file_path, $file_id, $caption, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id);
+    public function replyVideo(?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New') {
+        return $this->bot->sendVideo($this->chat_id, $file_path, $file_id, $caption, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id);
     }
 
     // public function __toString() {
