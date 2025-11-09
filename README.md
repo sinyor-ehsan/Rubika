@@ -1,3 +1,4 @@
+# 📚 Rubika bot PHP Library
 Botkaplus Library for rubika bots.
 
 
