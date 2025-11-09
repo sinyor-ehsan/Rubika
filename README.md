@@ -40,7 +40,7 @@ $token = "token_bot";
 $bot = new BotClient($token);
 
 $bot->onMessage(null, function(BotClient $bot, Message $message) {
-        $message->reply_Message("hello from Botkaplus!");
+        $message->replyMessage("hello from Botkaplus!");
     }
 );
 $bot->runPolling();
@@ -65,7 +65,7 @@ $Data = json_decode($inData);
 $bot = new BotClient($token, $Data);
 
 $bot->onMessage(Filters::text("hello"), function(BotClient $bot, Message $message) {
-        $message->reply_Message("hello from Botkaplus!");
+        $message->replyMessage("hello from Botkaplus!");
     }
 );
 $bot->run();
@@ -133,7 +133,7 @@ $bot->onMessage(Filters::text("hello"), function(BotClient $bot, Message $messag
 # فیلتر ترکیبی and
 ```php
 $bot->onMessage(Filters::and(Filters::private(), Filters::command("start")), function(BotClient $bot, Message $message){
-    $message->reply_Message("hello from Botkaplus to pv!");
+    $message->replyMessage("hello from Botkaplus to pv!");
 });
 ```
 # انواع فیلترها
@@ -153,7 +153,7 @@ Filters::not(...)
 ```
 # تنظیم کامندها
 ```php
-$bot->set_Commands([["command" => "start", "description" => "شروع ربات"], ["command" => "help", "description" => "راهنمای ربات"]]);
+$bot->setCommands([["command" => "start", "description" => "شروع ربات"], ["command" => "help", "description" => "راهنمای ربات"]]);
 ```
 
 #ارسال نظرسنجی
@@ -166,5 +166,5 @@ $bot->set_Commands([["command" => "start", "description" => "شروع ربات"]
 // is_anonymous باشد، رأی‌دهی ناشناس است و نام رأی‌دهندگان نمایش داده نمی‌شود true اگر 
 // correct_option_index "Quiz" ایندکس گزینه درست در حالت 
 // hint توضیح نظرسنجی
-$bot->send_Poll(chat_id:$bot->chat_id, question:"سوال", options:["one", "two"], type:"Quiz", is_anonymous:false, correct_option_index:"0", hint:"توضیحات")
+$bot->sendPoll(chat_id:$bot->chat_id, question:"سوال", options:["one", "two"], type:"Quiz", is_anonymous:false, correct_option_index:"0", hint:"توضیحات")
 ```
