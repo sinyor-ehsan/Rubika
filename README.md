@@ -145,7 +145,7 @@ $bot->set_Commands([["command" => "start", "description" => "شروع ربات"]
 ```
 
 #ارسال نظرسنجی
-```
+```php
 // chat_id شناسه چت مقصد
 // question متن سوال
 // options array[string] گزینه های سوال
