@@ -93,6 +93,7 @@ class BotClient {
             $this->sender_id            = $this->inline_message->sender_id ?? null;
             $this->message_id           = $this->inline_message->message_id ?? null;
             $this->aux_data             = $this->inline_message->aux_data ?? null;
+            $this->button_id            = $this->aux_data->button_id ?? null;
             $this->location             = $this->inline_message->location ?? null;
         }
 
@@ -700,3 +701,4 @@ class BotClient {
     }
 
 }
+
