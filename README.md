@@ -6,6 +6,7 @@ Botkaplus Library for rubika bots.
 # Botkaplus
   <img align="center" width="200" height="200" src="https://rubika.ir/static/images/logo.svg"/>
 Botkaplus Library for rubika bots.
+
 یک کتابخانه قدرتمند و ساده برای ساخت ربات‌های روبیکا با PHP.
 
 باتکاپلاس کتابخانه ای برای بات های روبیکا
