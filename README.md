@@ -144,7 +144,69 @@ $bot->run();
 ```
 
 # ارسال متادیتا html
-?
+```php
+<?php
+
+require "vendor/autoload.php";
+use Botkaplus\BotClient;
+use Botkaplus\Filters;
+use Botkaplus\Message;
+
+echo "start\n";
+
+$token = "token_bot";
+$inData = file_get_contents('php://input');
+$Data = json_decode($inData);
+
+$bot = new BotClient(token: $token, rData: $Data);
+
+
+$bot->onMessage(null, function(BotClient $bot, Message $message) {
+    $html = <<<'EOT'
+        <b>Hi 👋</b><br><br>
+        Welcome to our amazing Botkaplus! 🎉<br>
+        Here you can see all HTML formatting features:<br><br>
+        <b>Bold text</b><br>
+        <i>Italic text</i><br>
+        <u>Underlined text</u><br>
+        <s>Strikethrough text</s><br>
+        <code>Mono text</code><br>
+        <code>Inline code example</code><br>
+        <pre><?php
+
+        require "vendor/autoload.php";
+        use Botkaplus\BotClient;
+        use Botkaplus\Filters;
+        use Botkaplus\Message;
+
+        $token = "token_bot";
+        $inData = file_get_contents('php://input');
+        $Data = json_decode(\$inData);
+
+        $bot = new BotClient(\$token, \$Data);
+
+        $bot->onMessage(Filters::text("hello"), function(BotClient $bot, Message $message) {
+            $message->replyMessage("hello from Botkaplus!");
+            }
+        );
+        $bot->run();
+
+        ?>
+        </pre><br>
+        <a href="https://github.com/sinyor-ehsan/Rubika">Link to Botkaplus</a><br>
+        Emojis 😎✨🔥<br><br>
+        <b>Important parts:</b><br>
+        <u>Emphasized words</u><br>
+        Enjoy exploring all the HTML features! 🎉
+        EOT; 
+    $message->replyMessage(text:$html, parse_mode:"HTML");
+    
+});
+
+$bot->run();
+
+?>
+```
 
 # ارسال اینلاین کیبورد
 ```php
