@@ -208,6 +208,34 @@ $bot->run();
 ?>
 ```
 
+# ارسال متادیتا markdown با utils
+```php
+<?php
+
+require "vendor/autoload.php";
+use Botkaplus\BotClient;
+use Botkaplus\Utils;
+use Botkaplus\Message;
+
+echo "start\n";
+
+$token = "token_bot";
+$inData = file_get_contents('php://input');
+$Data = json_decode($inData);
+
+$bot = new BotClient(token: $token, rData: $Data);
+
+$utils = new Utils();
+
+$bot->onMessage(null, function(BotClient $bot, Message $message) use ($utils) {
+    $message->replyMessage($utils->Bold("hello") . " " . $utils->Italic("from " . " ") . " " . $utils->Hyperlink("Botkaplus!", "https://github.com/sinyor-ehsan/Rubika") . " " . $utils->Quote("quote" . " " . $utils->Mono("mono")));
+});
+
+$bot->run();
+
+?>
+```
+
 # ارسال اینلاین کیبورد
 ```php
 use Botkaplus\KeypadInline;
