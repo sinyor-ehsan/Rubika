@@ -135,7 +135,7 @@ $bot->onMessage(null, function(BotClient $bot, Message $message) {
         Enjoy exploring all the Markdown features! ✨
         EOT;
         
-    $message->replyMessage(text:$text);
+    $message->replyMessage(text:$text, parse_mode:"Markdown");
 });
 
 $bot->run();
@@ -162,7 +162,7 @@ $bot = new BotClient(token: $token, rData: $Data);
 
 
 $bot->onMessage(null, function(BotClient $bot, Message $message) {
-    $html = <<<'EOT'
+    $html = <<<'HTML'
         <b>Hi 👋</b><br><br>
         Welcome to our amazing Botkaplus! 🎉<br>
         Here you can see all HTML formatting features:<br><br>
@@ -172,7 +172,7 @@ $bot->onMessage(null, function(BotClient $bot, Message $message) {
         <s>Strikethrough text</s><br>
         <code>Mono text</code><br>
         <code>Inline code example</code><br>
-        <pre><?php
+        <pre>&lt;?php
 
         require "vendor/autoload.php";
         use Botkaplus\BotClient;
@@ -198,7 +198,7 @@ $bot->onMessage(null, function(BotClient $bot, Message $message) {
         <b>Important parts:</b><br>
         <u>Emphasized words</u><br>
         Enjoy exploring all the HTML features! 🎉
-        EOT; 
+        HTML; 
     $message->replyMessage(text:$html, parse_mode:"HTML");
     
 });
