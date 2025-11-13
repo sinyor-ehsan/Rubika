@@ -2,6 +2,9 @@
 
 namespace Botkaplus;
 
+require_once 'Metadata_Mode.php';
+use Botkaplus\Markdown;
+
 class TrackParsed {
     private static $pattern = '/
         (?P<pre>```(?P<pre_c>[\s\S]*?)```)|
@@ -62,6 +65,11 @@ class TrackParsed {
 
     public function transcribe($src, $mode = "MARKDOWN") {
         if ($mode === "HTML") {$src = $this->html2md($src);}
+        if ($mode === "MARKDOWN_MODE") {
+            $markdown = new Markdown();
+            $src = $markdown->toMetadata($src);
+            return $src;
+        }
         $payloadParts = [];
         $normalizedText = $src;
         $byteOffset = 0;
@@ -128,6 +136,7 @@ class TrackParsed {
         if (!empty($payloadParts)) {
             $result["metadata"] = ["meta_data_parts" => $payloadParts];
         }
+        
         return $result;
     }
 
