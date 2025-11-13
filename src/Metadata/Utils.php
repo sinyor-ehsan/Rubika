@@ -12,7 +12,7 @@ class Utils {
     }
 
     function Italic($text){
-        return "__" . trim($text) . "__";
+        return "__" . $text . "__";
     }
 
     function Underline($text){
@@ -20,24 +20,25 @@ class Utils {
     }
 
     function Mono($text){
-        return "`" . trim($text) . "`";
+        return "`" . $text . "`";
     }
 
     function Strike($text){
-        return "~~" . trim($text) . "~~";
+        return "~~" . $text . "~~";
     }
 
     function Spoiler($text){
-        return "||" . trim($text) . "||";
+        return "||" . $text . "||";
     }
 
     function Code($text){
-        return "```" . trim($text) . "```";
+        return "```" . $text . "```";
     }
 
     function Quote($text){
-        return "$" . trim($text) . "$";
+        return "$" . $text . "$";
     }
 }
+
 
 ?>
