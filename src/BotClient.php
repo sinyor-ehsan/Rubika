@@ -8,6 +8,7 @@ require_once 'Keypad/KeypadChat.php';
 require_once 'Keypad/KeypadInline.php';
 require_once 'Metadata/Metadata.php';
 require_once 'Metadata/Utils.php';
+require_once 'Metadata/Markdown_Mode.php';
 
 use Botkaplus\Message;
 use Exception;
@@ -726,6 +727,7 @@ class BotClient {
     }
 
 }
+
 
 
 
