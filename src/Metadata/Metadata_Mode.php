@@ -717,52 +717,68 @@ class Markdown {
     public function markdown_mode($src) {
         $metadataParts = [];
 
-        $markdown_quote = $this->markdown_quote($src);
-        $src = $markdown_quote['text'];
-        if (!empty($markdown_quote['metadata']['meta_data_parts'])) {
-            $metadataParts = array_merge($metadataParts, $markdown_quote['metadata']['meta_data_parts']);
+        if (preg_match('/##.*?##/s', $src)) {
+            $markdown_quote = $this->markdown_quote($src);
+            $src = $markdown_quote['text'];
+            if (!empty($markdown_quote['metadata']['meta_data_parts'])) {
+                $metadataParts = array_merge($metadataParts, $markdown_quote['metadata']['meta_data_parts']);
+            }
         }
 
-        $markdown_pre = $this->markdown_pre($src);
-        $src = $markdown_pre['text'];
-        if (!empty($markdown_pre['metadata']['meta_data_parts'])) {
-            $metadataParts = array_merge($metadataParts, $markdown_pre['metadata']['meta_data_parts']);
+        if (preg_match('/```.*?```/s', $src)) {
+            $markdown_pre = $this->markdown_pre($src);
+            $src = $markdown_pre['text'];
+            if (!empty($markdown_pre['metadata']['meta_data_parts'])) {
+                $metadataParts = array_merge($metadataParts, $markdown_pre['metadata']['meta_data_parts']);
+            }
         }
 
-        $markdown_mono = $this->markdown_mono($src);
-        $src = $markdown_mono['text'];
-        if (!empty($markdown_mono['metadata']['meta_data_parts'])) {
-            $metadataParts = array_merge($metadataParts, $markdown_mono['metadata']['meta_data_parts']);
+        if (preg_match('/`.*?`/s', $src)) {
+            $markdown_mono = $this->markdown_mono($src);
+            $src = $markdown_mono['text'];
+            if (!empty($markdown_mono['metadata']['meta_data_parts'])) {
+                $metadataParts = array_merge($metadataParts, $markdown_mono['metadata']['meta_data_parts']);
+            }
         }
 
-        $markdown_italic = $this->markdown_italic($src);
-        $src = $markdown_italic['text'];
-        if (!empty($markdown_italic['metadata']['meta_data_parts'])) {
-            $metadataParts = array_merge($metadataParts, $markdown_italic['metadata']['meta_data_parts']);
+        if (preg_match('/__.*?__/s', $src)) {
+            $markdown_italic = $this->markdown_italic($src);
+            $src = $markdown_italic['text'];
+            if (!empty($markdown_italic['metadata']['meta_data_parts'])) {
+                $metadataParts = array_merge($metadataParts, $markdown_italic['metadata']['meta_data_parts']);
+            }
         }
 
-        $markdown_bold = $this->markdown_bold($src);
-        $src = $markdown_bold['text'];
-        if (!empty($markdown_bold['metadata']['meta_data_parts'])) {
-            $metadataParts = array_merge($metadataParts, $markdown_bold['metadata']['meta_data_parts']);
+        if (preg_match('/\*\*.*?\*\*/s', $src)) {
+            $markdown_bold = $this->markdown_bold($src);
+            $src = $markdown_bold['text'];
+            if (!empty($markdown_bold['metadata']['meta_data_parts'])) {
+                $metadataParts = array_merge($metadataParts, $markdown_bold['metadata']['meta_data_parts']);
+            }
         }
 
-        $markdown_underline = $this->markdown_underline($src);
-        $src = $markdown_underline['text'];
-        if (!empty($markdown_underline['metadata']['meta_data_parts'])) {
-            $metadataParts = array_merge($metadataParts, $markdown_underline['metadata']['meta_data_parts']);
+        if (preg_match('/--.*?--/s', $src)) {
+            $markdown_underline = $this->markdown_underline($src);
+            $src = $markdown_underline['text'];
+            if (!empty($markdown_underline['metadata']['meta_data_parts'])) {
+                $metadataParts = array_merge($metadataParts, $markdown_underline['metadata']['meta_data_parts']);
+            }
         }
 
-        $markdown_strike = $this->markdown_strike($src);
-        $src = $markdown_strike['text'];
-        if (!empty($markdown_strike['metadata']['meta_data_parts'])) {
-            $metadataParts = array_merge($metadataParts, $markdown_strike['metadata']['meta_data_parts']);
+        if (preg_match('/~~.*?~~/s', $src)) {
+            $markdown_strike = $this->markdown_strike($src);
+            $src = $markdown_strike['text'];
+            if (!empty($markdown_strike['metadata']['meta_data_parts'])) {
+                $metadataParts = array_merge($metadataParts, $markdown_strike['metadata']['meta_data_parts']);
+            }
         }
 
-        $markdown_spoiler = $this->markdown_spoiler($src);
-        $src = $markdown_spoiler['text'];
-        if (!empty($markdown_spoiler['metadata']['meta_data_parts'])) {
-            $metadataParts = array_merge($metadataParts, $markdown_spoiler['metadata']['meta_data_parts']);
+        if (preg_match('/\|\|.*?\|\|/s', $src)) {
+            $markdown_spoiler = $this->markdown_spoiler($src);
+            $src = $markdown_spoiler['text'];
+            if (!empty($markdown_spoiler['metadata']['meta_data_parts'])) {
+                $metadataParts = array_merge($metadataParts, $markdown_spoiler['metadata']['meta_data_parts']);
+            }
         }
 
         $markdown_link = $this->markdown_link($src);
