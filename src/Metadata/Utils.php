@@ -8,7 +8,7 @@ class Utils {
     }
 
     function Hyperlink($text, $link){
-        return "[" . trim($text) . "](" . trim($link) . ")";
+        return "[" . $text . "](" . trim($link) . ")";
     }
 
     function Italic($text){
@@ -36,9 +36,8 @@ class Utils {
     }
 
     function Quote($text){
-        return "$" . $text . "$";
+        return "##" . $text . "##";
     }
 }
-
 
 ?>
