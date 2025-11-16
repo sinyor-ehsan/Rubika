@@ -143,6 +143,151 @@ class Filters {
         };
     }
 
+    public static function replied() {
+        return new class {
+            public function match($message) {
+                return isset($message->new_message?->reply_to_message_id);
+            }
+        };
+    }
+
+    public static function file() {
+        return new class {
+            public function match($message) {
+                return isset($message->new_message?->file);
+            }
+        };
+    }
+
+    public static function photo() {
+        return new class {
+            public function match($message) {
+                $fileName = $message->new_message?->file->file_name ?? null;
+                if (!$fileName) return false;
+
+                $imageExtensions = ['jpg', 'jpeg', 'png'];
+                $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+                return in_array($extension, $imageExtensions, true);
+            }
+        };
+    }
+
+    public static function video() {
+        return new class {
+            public function match($message) {
+                $fileName = $message->new_message?->file->file_name ?? null;
+                if (!$fileName) return false;
+
+                $videoExtensions = ['mp4', 'mov', 'mkv', 'avi', 'webm'];
+                $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+                return in_array($extension, $videoExtensions, true);
+            }
+        };
+    }
+
+    public static function music() {
+        return new class {
+            public function match($message) {
+                $file = $message->new_message?->file ?? null;
+                if (!$file || !isset($file->file_name)) return false;
+
+                $musicExtensions = ['mp3', 'wav', 'flac', 'aac', 'm4a'];
+                $extension = strtolower(pathinfo($file->file_name, PATHINFO_EXTENSION));
+
+                return in_array($extension, $musicExtensions);
+            }
+        };
+    }
+
+    public static function voice() {
+        return new class {
+            public function match($message) {
+                $fileName = $message->new_message?->file->file_name ?? null;
+                if (!$fileName) return false;
+
+                return strtolower(pathinfo($fileName, PATHINFO_EXTENSION)) === 'ogg';
+            }
+        };
+    }
+
+    public static function gif() {
+        return new class {
+            public function match($message) {
+                $fileName = $message->new_message?->file->file_name ?? null;
+                if (!$fileName) return false;
+
+                $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                return $extension === 'gif';
+            }
+        };
+    }
+
+    public static function forward() {
+        return new class {
+            public function match($message) {
+                return isset($message->new_message?->forwarded_from);
+            }
+        };
+    }
+
+    public static function forwardFromChannel() {
+        return new class {
+            public function match($message) {
+                $forward = $message->new_message?->forwarded_from ?? null;
+                if (!$forward || !isset($forward->type_from, $forward->from_chat_id)) return false;
+
+                return $forward->type_from === 'Channel';
+            }
+        };
+    }
+
+    public static function location() {
+        return new class {
+            public function match($message) {
+                return isset($message->new_message?->location);
+            }
+        };
+    }
+
+    public static function poll() {
+        return new class {
+            public function match($message) {
+                return isset($message->new_message?->poll);
+            }
+        };
+    }
+
+    /**
+     * User or Bot or Channel
+     * @param string $expectedType The expected sender type to match ('User', 'Bot', 'Channel')
+     */
+    public static function senderType($expectedType) {
+        return new class($expectedType) {
+            private $expectedType;
+
+            public function __construct($expectedType) {
+                $this->expectedType = $expectedType;
+            }
+
+            public function match($message) {
+                return isset($message->new_message?->sender_type)
+                    && $message->new_message->sender_type === $this->expectedType;
+            }
+        };
+    }
+
+    public static function metadata() {
+        return new class {
+            public function match($message) {
+                return isset($message->new_message?->metadata?->meta_data_parts)
+                    && is_array($message->new_message->metadata->meta_data_parts)
+                    && count($message->new_message->metadata->meta_data_parts) > 0;
+            }
+        };
+    }
+
     // فیلتر ترکیبی and. همه فیلتر ها برقرار باشن
     public static function and(...$filters) {
         return new class($filters) {
