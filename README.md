@@ -32,17 +32,14 @@ composer require sinyor-ehsan/botkaplus
 
 require "vendor/autoload.php";
 use Botkaplus\BotClient;
-use Botkaplus\Utils;
 use Botkaplus\Message;
 
 echo "start\n";
 
 $bot = new BotClient(token: $token);
 
-$utils = new Utils();
-
-$bot->onMessage(null, function(BotClient $bot, Message $message) use ($utils) {
-    $message->replyMessage($utils->Bold("hello " . $utils->Italic("from " . $utils->Strike($utils->Hyperlink("Botkaplus! ", "https://github.com/sinyor-ehsan/Rubika")))));
+$bot->onMessage(null, function(BotClient $bot, Message $message) {
+    $message->replyMessage("**hello __from ~~[Botkaplus!](https://github.com/sinyor-ehsan/Rubika)~~__**");
 });
 
 $bot->run();
