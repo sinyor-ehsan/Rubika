@@ -95,7 +95,7 @@ $bot = new BotClient(token: $token, rData: $Data);
 $bot->onMessage(null, function(BotClient $bot, Message $message) {
     
     $text = <<<'EOT'
-        Hi $Welcome to our amazing Botkaplus! 🎉
+        Hi ##Welcome to our amazing Botkaplus! 🎉
         Here is a [Quote example](https://github.com/sinyor-ehsan/Rubika) that spans multiple lines,
         and inside it you can see:
         - __**Bold text**__
@@ -104,7 +104,7 @@ $bot->onMessage(null, function(BotClient $bot, Message $message) {
         - `Mono text`
         - ~~Strikethrough~~
         - ||Spoiler content||
-        $
+        ##
         Outside the quote, you can also highlight:
 
         - **Important parts**  
