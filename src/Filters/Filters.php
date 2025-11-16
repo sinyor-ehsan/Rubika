@@ -151,6 +151,14 @@ class Filters {
         };
     }
 
+    public static function sticker() {
+        return new class {
+            public function match($message) {
+                return isset($message->new_message?->sticker);
+            }
+        };
+    }
+
     public static function file() {
         return new class {
             public function match($message) {
