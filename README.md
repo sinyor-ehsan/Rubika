@@ -256,7 +256,7 @@ $keypad->addRow([
 ]);
 
 $inline_keypad = $keypad->build();
-$message->replyMessage("send inline keypad!", $inline_keypad);
+$message->replyMessage("send inline keypad!", inline_keypad:$inline_keypad);
 ```
 
 # ارسال اینلاین Button
