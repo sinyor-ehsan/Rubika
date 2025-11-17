@@ -37,6 +37,15 @@ class BotClient {
     public $is_edited;
     public $sender_type;
     public $reply_to_message_id;
+    public $sticker;
+    public $sticker_emoji_character;
+    public $sticker_id;
+    public $sticker_file;
+    public $sticker_file_id;
+    public $file;
+    public $file_id;
+    public $file_name;
+    public $file_size;
 
     // فیلدهای inline
     public $inline_message;
@@ -48,6 +57,10 @@ class BotClient {
     // فیلدهای پیام ویرایش شده
     public $updated_message;
     public $text_edit;
+
+    // فیلدهای metadata
+    public $metadata;
+    public $meta_data_parts;
 
     // هندلرها
     private $handlers = [];
@@ -83,6 +96,30 @@ class BotClient {
             $this->message_id           = $this->new_message->message_id ?? null;
             $this->is_edited            = $this->new_message->is_edited ?? false;
             $this->reply_to_message_id  = $this->new_message->reply_to_message_id ?? null;
+            $this->sticker              = $this->new_message->sticker ?? null;
+            if ($this->sticker) {
+                $this->sticker_emoji_character = $this->sticker->emoji_character ?? null;
+                $this->sticker_id              = $this->sticker->sticker_id ?? null;
+                $this->sticker_file            = $this->sticker->file ?? null;
+                $this->sticker_file_id         = $this->sticker_file->file_id ?? null;
+            } else {
+                $this->sticker_emoji_character = null;
+                $this->sticker_id              = null;
+                $this->sticker_file            = null;
+                $this->sticker_file_id         = null;
+            }
+            $this->file                 = $this->new_message->file ?? null;
+            if ($this->file) {
+                $this->file_id  = $this->file->file_id ?? null;
+                $this->file_name= $this->file->file_name ?? null;
+                $this->file_size= $this->file->size ?? null;
+            } else {
+                $this->file_id  = null;
+                $this->file_name= null;
+                $this->file_size= null;
+            }
+            $this->metadata             = $this->new_message->metadata ?? null;
+            $this->meta_data_parts      = $this->metadata->meta_data_parts ?? null;
         }else if (isset($this->message->type) && $this->message->type ?? "null" === "UpdatedMessage") { // پیام ویرایش شده
             $this->chat_id              = $this->message->chat_id ?? null;
             $this->message_id           = $this->updated_message->message_id ?? null;
@@ -91,6 +128,19 @@ class BotClient {
             $this->is_edited            = $this->updated_message->is_edited ?? true;
             $this->sender_type          = $this->updated_message->sender_type ?? null;
             $this->sender_id            = $this->updated_message->sender_id ?? null;
+            $this->reply_to_message_id  = $this->updated_message->reply_to_message_id ?? null;
+            $this->file                 = $this->updated_message->file ?? null;
+            if ($this->file) {
+                $this->file_id  = $this->file->file_id ?? null;
+                $this->file_name= $this->file->file_name ?? null;
+                $this->file_size= $this->file->size ?? null;
+            } else {
+                $this->file_id  = null;
+                $this->file_name= null;
+                $this->file_size= null;
+            }
+            $this->metadata             = $this->updated_message->metadata ?? null;
+            $this->meta_data_parts      = $this->metadata->meta_data_parts ?? null;
         }else if ($this->inline_message) { // پیام اینلاین
             $this->text                 = $this->inline_message->text ?? null;
             $this->chat_id              = $this->inline_message->chat_id ?? null;
@@ -728,4 +778,4 @@ class BotClient {
 
 }
 
-
+?>
