@@ -159,10 +159,24 @@ class Filters {
         };
     }
 
-    public static function file() {
+    public static function hasFile() {
         return new class {
             public function match($message) {
                 return isset($message->new_message?->file);
+            }
+        };
+    }
+
+    public static function file() {
+        return new class {
+            public function match($message) {
+                $fileName = $message->new_message?->file->file_name ?? null;
+                if (!$fileName) return false;
+
+                $allowedExtensions = ['pdf', 'doc', 'docx', 'zip', 'rar', 'wav', 'apk'];
+                $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+                return in_array($extension, $allowedExtensions, true);
             }
         };
     }
