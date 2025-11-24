@@ -153,6 +153,7 @@ class BotClient {
     public function runPolling() {
         $offset_id = null;
 
+        $last_message_ids = [];
         while (true) {
             try {
 
@@ -165,19 +166,29 @@ class BotClient {
 
                 foreach ($response->data->updates as $update) {
                     $time = null;
+                    $new_message_id = null;
                     if (isset($update->new_message->time)) {
                         $time = $update->new_message->time;
+                        $new_message_id = $update->new_message->message_id;
                     } else if (isset($update->updated_message->time)) {
                         $time = $update->updated_message->time;
+                        $new_message_id = $update->new_message->message_id;
                     }
 
+                    if (count($last_message_ids) >= 20) {
+                        array_shift($last_message_ids);
+                    }
+                    
                     if ($this->has_time_passed($time, 5)) {
                         continue;
                     }
 
-                    $this->rData = (object)['update' => $update];
-                    $this->get_rData($this->rData);
-                    $this->run();
+                    if (!in_array($new_message_id, $last_message_ids)) {
+                        $this->rData = (object)['update' => $update];
+                        $this->get_rData($this->rData);
+                        $this->run();
+                        $last_message_ids[] = $new_message_id;
+                    }
                     usleep(500000);
                 }
 
@@ -209,8 +220,6 @@ class BotClient {
 
         $resultText = isset($parsed['text']) ? $parsed['text'] : null;
         $resultMetadata = isset($parsed['metadata']) ? $parsed['metadata'] : null;
-
-        echo json_encode($resultMetadata);
 
         return [$resultText, $resultMetadata];
     }
