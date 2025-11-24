@@ -12,6 +12,8 @@ require_once 'Metadata/Metadata_Mode.php';
 
 use Botkaplus\Message;
 use Exception;
+use InvalidArgumentException;
+use RuntimeException;
 
 class BotClient {
 
@@ -28,39 +30,11 @@ class BotClient {
     public $new_message; // پیام خام برای فیلترها
     public $message_wrapper; // کلاس ریپلای حرفه‌ای
 
-    // فیلدهای پیام
-    public $text;
-    public $timee;
-    public $chat_id;
-    public $sender_id;
-    public $message_id;
-    public $is_edited;
-    public $sender_type;
-    public $reply_to_message_id;
-    public $sticker;
-    public $sticker_emoji_character;
-    public $sticker_id;
-    public $sticker_file;
-    public $sticker_file_id;
-    public $file;
-    public $file_id;
-    public $file_name;
-    public $file_size;
-
     // فیلدهای inline
     public $inline_message;
-    public $aux_data;
-    public $start_id;
-    public $button_id;
-    public $location;
-
+    
     // فیلدهای پیام ویرایش شده
     public $updated_message;
-    public $text_edit;
-
-    // فیلدهای metadata
-    public $metadata;
-    public $meta_data_parts;
 
     // هندلرها
     private $handlers = [];
@@ -85,72 +59,6 @@ class BotClient {
         $this->updated_message      = $this->message->updated_message ?? null;
         // ساخت کلاس ریپلای
         $this->message_wrapper = new Message($this, $rData);
-
-        // پیام معمولی
-        if (isset($this->message->type) && $this->new_message) {
-            $this->text                 = $this->new_message->text ?? null;
-            $this->timee                = $this->new_message->time ?? null;
-            $this->chat_id              = $this->message->chat_id ?? null;
-            $this->sender_id            = $this->new_message->sender_id ?? null;
-            $this->sender_type          = $this->new_message->sender_type ?? null;
-            $this->message_id           = $this->new_message->message_id ?? null;
-            $this->is_edited            = $this->new_message->is_edited ?? false;
-            $this->reply_to_message_id  = $this->new_message->reply_to_message_id ?? null;
-            $this->sticker              = $this->new_message->sticker ?? null;
-            if ($this->sticker) {
-                $this->sticker_emoji_character = $this->sticker->emoji_character ?? null;
-                $this->sticker_id              = $this->sticker->sticker_id ?? null;
-                $this->sticker_file            = $this->sticker->file ?? null;
-                $this->sticker_file_id         = $this->sticker_file->file_id ?? null;
-            } else {
-                $this->sticker_emoji_character = null;
-                $this->sticker_id              = null;
-                $this->sticker_file            = null;
-                $this->sticker_file_id         = null;
-            }
-            $this->file                 = $this->new_message->file ?? null;
-            if ($this->file) {
-                $this->file_id  = $this->file->file_id ?? null;
-                $this->file_name= $this->file->file_name ?? null;
-                $this->file_size= $this->file->size ?? null;
-            } else {
-                $this->file_id  = null;
-                $this->file_name= null;
-                $this->file_size= null;
-            }
-            $this->metadata             = $this->new_message->metadata ?? null;
-            $this->meta_data_parts      = $this->metadata->meta_data_parts ?? null;
-        }else if (isset($this->message->type) && $this->message->type ?? "null" === "UpdatedMessage") { // پیام ویرایش شده
-            $this->chat_id              = $this->message->chat_id ?? null;
-            $this->message_id           = $this->updated_message->message_id ?? null;
-            $this->text_edit            = $this->updated_message->text ?? null;
-            $this->timee                = $this->updated_message->time ?? null;
-            $this->is_edited            = $this->updated_message->is_edited ?? true;
-            $this->sender_type          = $this->updated_message->sender_type ?? null;
-            $this->sender_id            = $this->updated_message->sender_id ?? null;
-            $this->reply_to_message_id  = $this->updated_message->reply_to_message_id ?? null;
-            $this->file                 = $this->updated_message->file ?? null;
-            if ($this->file) {
-                $this->file_id  = $this->file->file_id ?? null;
-                $this->file_name= $this->file->file_name ?? null;
-                $this->file_size= $this->file->size ?? null;
-            } else {
-                $this->file_id  = null;
-                $this->file_name= null;
-                $this->file_size= null;
-            }
-            $this->metadata             = $this->updated_message->metadata ?? null;
-            $this->meta_data_parts      = $this->metadata->meta_data_parts ?? null;
-        }else if ($this->inline_message) { // پیام اینلاین
-            $this->text                 = $this->inline_message->text ?? null;
-            $this->chat_id              = $this->inline_message->chat_id ?? null;
-            $this->sender_id            = $this->inline_message->sender_id ?? null;
-            $this->message_id           = $this->inline_message->message_id ?? null;
-            $this->aux_data             = $this->inline_message->aux_data ?? null;
-            $this->button_id            = $this->inline_message->aux_data->button_id ?? null;
-            $this->location             = $this->inline_message->location ?? null;
-        }
-
     }
 
     public function setWebhook($url_webhook) {
@@ -259,7 +167,7 @@ class BotClient {
                     $time = null;
                     if (isset($update->new_message->time)) {
                         $time = $update->new_message->time;
-                    } elseif (isset($update->updated_message->time)) {
+                    } else if (isset($update->updated_message->time)) {
                         $time = $update->updated_message->time;
                     }
 
@@ -291,12 +199,8 @@ class BotClient {
     }
 
     public function getMe() {
-        $url = "https://botapi.rubika.ir/v3/" . $this->token . "/" . "getMe";
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        return curl_exec($ch);
+        $response = $response = $this->bot("getMe");
+        return $response;
     }
 
     function parseTextMetadata($text, $parseMode) {
@@ -323,20 +227,20 @@ class BotClient {
      * @param string|null $reply_to_message_id شناسه پیام برای پاسخ (اختیاری)
      * @return stdClass شیء پاسخ از سرور. موفقیت یا شکست ارسال پیام
      */
-    public function sendMessage($chat_id, $text, $parse_mode = null, $inline_keypad = null, $chat_keypad = null, $chat_keypad_type = "New", $reply_to_message = null) {
+    public function sendMessage($chat_id, $text, $inline_keypad = null, $chat_keypad = null, $chat_keypad_type = "New", $reply_to_message = null, $parse_mode = null, $metadata = null) {
         if ($parse_mode === null){$parse_mode = $this->parse_mode;}
         $data_send = [
             "chat_id" => $chat_id,
             "text" => $text,
             "reply_to_message_id" => $reply_to_message
         ];
-        if (!empty($text)) {
+        if (!empty($text) & $metadata == null) {
             list($text, $metadata) = $this->parseTextMetadata($text, $parse_mode);
             $data_send["text"] = $text;
             if (!empty($metadata)) {
                 $data_send["metadata"] = $metadata;
             }
-        }
+        } else {$data_send["metadata"] = $metadata;}
         if ($inline_keypad !== null){$data_send["inline_keypad"] = $inline_keypad;}
         else if($chat_keypad !== null){
             $data_send["chat_keypad"] = $chat_keypad;
@@ -463,13 +367,21 @@ class BotClient {
      * @param string $id_message شناسه پیام مورد نظر
      * @param string $data_message اختیاری پیام ارسال شده توسط ربات send_Message.
      */
-    public function editMessageText($chat_id, $text, $id_message = null, $data_messade = null) {
+    public function editMessageText($chat_id, $text, $id_message = null, $data_messade = null, $parse_mode = null, $metadata = null) {
+        if ($parse_mode === null){$parse_mode = $this->parse_mode;}
         $data_send = [
             "chat_id" => $chat_id,
             "text" => $text
         ];
         if ($id_message !== null){$data_send["message_id"] = $id_message;}
         else if ($data_messade !== null) {$data_send["message_id"] = $data_messade->data->message_id;}
+        if (!empty($text) & $metadata == null) {
+            list($text, $metadata) = $this->parseTextMetadata($text, $parse_mode);
+            $data_send["text"] = $text;
+            if (!empty($metadata)) {
+                $data_send["metadata"] = $metadata;
+            }
+        } else {$data_send["metadata"] = $metadata;}
         return $this->bot("editMessageText", $data_send);
     }
 
@@ -509,11 +421,92 @@ class BotClient {
         return $this->bot("getFile", ["file_id" => $file_id]);
     }
 
-    public function downloadFile($file_id) {
-        return $this->bot("getFile", ["file_id" => $file_id]);
+    public function downloadFile(
+        string $file_id,
+        ?string $save_as = null,
+        ?callable $progress = null,
+        ?int $chunk_size = 65536,
+        ?bool $as_bytes = false,
+        ?string $file_name = null,
+        ?float $timeout = 20.0
+    ) {
+        // گرفتن لینک دانلود از API
+        $response = json_decode($this->bot("getFile", ["file_id" => $file_id]));
+        if (!$response || empty($response->data->download_url)) {
+            throw new InvalidArgumentException("Invalid file_id: {$file_id}");
+        }
+
+        $download_url = $response->data->download_url;
+
+        // تنظیم context برای timeout
+        $context = stream_context_create([
+            'http' => [
+                'timeout' => $timeout,
+            ]
+        ]);
+
+        $fp = fopen($download_url, 'rb', false, $context);
+        if (!$fp) {
+            throw new RuntimeException("Failed to open download URL: {$download_url}");
+        }
+
+        // گرفتن سایز کل فایل (اگر موجود بود)
+        $headers = get_headers($download_url, true);
+        $total_size = isset($headers['Content-Length']) ? (int)$headers['Content-Length'] : 0;
+
+        $downloaded = 0;
+
+        if ($as_bytes) {
+            $content = '';
+            while (!feof($fp)) {
+                $chunk = fread($fp, $chunk_size);
+                $content .= $chunk;
+                $downloaded += strlen($chunk);
+
+                if ($progress) {
+                    try {
+                        $progress($downloaded, $total_size);
+                    } catch (\Throwable $e) {
+                        // نادیده گرفتن خطا در callback
+                    }
+                }
+            }
+            fclose($fp);
+            return $content;
+        } else {
+            if ($save_as === null) {
+                $save_as = $file_name ?? ("downloaded_" . uniqid() . ".bin");
+            }
+
+            $out = fopen($save_as, 'wb');
+            if (!$out) {
+                fclose($fp);
+                throw new RuntimeException("Failed to open file for writing: {$save_as}");
+            }
+
+            while (!feof($fp)) {
+                $chunk = fread($fp, $chunk_size);
+                fwrite($out, $chunk);
+                $downloaded += strlen($chunk);
+
+                if ($progress) {
+                    try {
+                        $progress($downloaded, $total_size);
+                    } catch (\Throwable $e) {
+                        // نادیده گرفتن خطا در callback
+                    }
+                }
+            }
+
+            fclose($fp);
+            fclose($out);
+
+            return $save_as;
+        }
     }
 
-    public function sendFileById($chat_id, $file_id, $caption = null, $inline_keypad = null, $chat_keypad = null, $chat_keypad_type = "New", $reply_to_message = null) {
+    public function sendFileById($chat_id, $file_id, $caption = null, $inline_keypad = null, $chat_keypad = null, $chat_keypad_type = "New", $reply_to_message = null, $parse_mode = null, $metadata = null) {
+        if ($parse_mode === null){$parse_mode = $this->parse_mode;}
         $data_send = [
             "chat_id" => $chat_id,
             "file_id" => $file_id,
@@ -524,7 +517,13 @@ class BotClient {
             $data_send["chat_keypad"] = $chat_keypad;
             $data_send["chat_keypad_type"] = $chat_keypad_type;
         }
-        if ($caption !== null){$data_send["text"] = $caption;}
+        if (!empty($caption) & $metadata == null) {
+            list($caption, $metadata) = $this->parseTextMetadata($caption, $parse_mode);
+            $data_send["text"] = $caption;
+            if (!empty($metadata)) {
+                $data_send["metadata"] = $metadata;
+            }
+        } else {$data_send["metadata"] = $metadata;}
         return $this->bot("sendFile", $data_send);
     }
 
@@ -534,20 +533,23 @@ class BotClient {
      * این متد فایل ارسال می‌کند.
      *
      * @param string $file_id شناسه فایل مورد نظر
-     * @param string $file_type in ['File', 'Image', 'Voice', 'Music', 'Gif', 'Video'] نوع فایل. (اگه $file_id گزاشتی اینو پر کن)
+     * @param string $file_type in ['File', 'Image', 'Voice', 'Music', 'Gif', 'Video'] نوع فایل. 
      */
-    public function sendFile(string $chat_id, ?string $file_path = null, ?string $file_id = null, ?string $file_type = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New', ?string $reply_to_message = null): array {
+    public function sendFile(string $chat_id, ?string $file_path = null, ?string $file_id = null, ?string $file_type = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New', ?string $reply_to_message = null, ?string $parse_mode = null, ?array $metadata = null): array {
+        if ($parse_mode === null){$parse_mode = $this->parse_mode;}
         if (!isset($file_id)) {
-            $mime_type = mime_content_type($file_path);
-            $file_type = $this->detectFileType($mime_type);
+            if ($file_type === null){
+                $mime_type = mime_content_type($file_path);
+                $file_type = $this->detectFileType($mime_type);
+            }
+            
             $upload_url = $this->requestSendFile($file_type);
             $file_id = $this->uploadFileToRubika($upload_url, $file_path);
         }
         
         $data_send = [
-            'chat_id' => $this->chat_id,
+            'chat_id' => $chat_id,
             'file_id' => $file_id,
-            'type' => $file_type,
         ];
         if ($reply_to_message !== null){$data_send["reply_to_message_id"] = $reply_to_message;}
         if ($inline_keypad !== null){$data_send["inline_keypad"] = $inline_keypad;}
@@ -555,12 +557,19 @@ class BotClient {
             $data_send["chat_keypad"] = $chat_keypad;
             $data_send["chat_keypad_type"] = $chat_keypad_type;
         }
-        if ($caption !== null){$data_send["text"] = $caption;}
+        if (!empty($caption) & $metadata == null) {
+            list($caption, $metadata) = $this->parseTextMetadata($caption, $parse_mode);
+            $data_send["text"] = $caption;
+            if (!empty($metadata)) {
+                $data_send["metadata"] = $metadata;
+            }
+        } else {$data_send["metadata"] = $metadata;}
         $response = $this->bot('sendFile', $data_send);
         return ['data' => $response, 'file_id' => $file_id];
     }
 
-    public function sendImage(string $chat_id, ?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New', ?string $reply_to_message = null,) {
+    public function sendImage(string $chat_id, ?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New', ?string $reply_to_message = null, ?string $parse_mode = null, ?array $metadata = null) {
+        if ($parse_mode === null){$parse_mode = $this->parse_mode;}
         if ($file_path) {
             $upload_url = $this->requestSendFile("Image");
             $file_id = $this->uploadFileToRubika($upload_url, $file_path);
@@ -574,16 +583,23 @@ class BotClient {
         if ($reply_to_message !== null) {$data_send["reply_to_message_id"] = $reply_to_message;}
         if ($inline_keypad !== null) {
             $data_send["inline_keypad"] = $inline_keypad;
-        } elseif ($chat_keypad !== null) {
+        } else if ($chat_keypad !== null) {
             $data_send["chat_keypad"] = $chat_keypad;
             $data_send["chat_keypad_type"] = $chat_keypad_type;
         }
-        if ($caption !== null){$data_send["text"] = $caption;}
+        if (!empty($caption) & $metadata == null) {
+            list($caption, $metadata) = $this->parseTextMetadata($caption, $parse_mode);
+            $data_send["text"] = $caption;
+            if (!empty($metadata)) {
+                $data_send["metadata"] = $metadata;
+            }
+        } else {$data_send["metadata"] = $metadata;}
 
         return $this->bot("sendFile", $data_send);
     }
     
-    public function sendVoice(string $chat_id, ?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New', ?string $reply_to_message = null,) {
+    public function sendVoice(string $chat_id, ?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New', ?string $reply_to_message = null, ?string $parse_mode = null, ?array $metadata = null) {
+        if ($parse_mode === null){$parse_mode = $this->parse_mode;}
         if ($file_path) {
             $upload_url = $this->requestSendFile("Voice");
             $file_id = $this->uploadFileToRubika($upload_url, $file_path);
@@ -601,12 +617,19 @@ class BotClient {
             $data_send["chat_keypad"] = $chat_keypad;
             $data_send["chat_keypad_type"] = $chat_keypad_type;
         }
-        if ($caption !== null){$data_send["text"] = $caption;}
+        if (!empty($caption) & $metadata == null) {
+            list($caption, $metadata) = $this->parseTextMetadata($caption, $parse_mode);
+            $data_send["text"] = $caption;
+            if (!empty($metadata)) {
+                $data_send["metadata"] = $metadata;
+            }
+        } else {$data_send["metadata"] = $metadata;}
 
         return $this->bot("sendFile", $data_send);
     }
 
-    public function sendMusic(string $chat_id, ?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New', ?string $reply_to_message = null,) {
+    public function sendMusic(string $chat_id, ?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New', ?string $reply_to_message = null, ?string $parse_mode = null, ?array $metadata = null) {
+        if ($parse_mode === null){$parse_mode = $this->parse_mode;}
         if ($file_path) {
             $upload_url = $this->requestSendFile("Music");
             $file_id = $this->uploadFileToRubika($upload_url, $file_path);
@@ -624,12 +647,19 @@ class BotClient {
             $data_send["chat_keypad"] = $chat_keypad;
             $data_send["chat_keypad_type"] = $chat_keypad_type;
         }
-        if ($caption !== null){$data_send["text"] = $caption;}
+        if (!empty($caption) & $metadata == null) {
+            list($caption, $metadata) = $this->parseTextMetadata($caption, $parse_mode);
+            $data_send["text"] = $caption;
+            if (!empty($metadata)) {
+                $data_send["metadata"] = $metadata;
+            }
+        } else {$data_send["metadata"] = $metadata;}
 
         return $this->bot("sendFile", $data_send);
     }
 
-    public function sendGif(string $chat_id, ?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New', ?string $reply_to_message = null): array {
+    public function sendGif(string $chat_id, ?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New', ?string $reply_to_message = null, ?string $parse_mode = null, ?array $metadata = null): array {
+        if ($parse_mode === null){$parse_mode = $this->parse_mode;}
         if (!isset($file_id)) {
             $mime_type = mime_content_type($file_path);
             $file_type = $this->detectFileType($mime_type);
@@ -641,7 +671,6 @@ class BotClient {
         $data_send = [
             'chat_id' => $chat_id,
             'file_id' => $file_id,
-            'type' => $file_type,
         ];
         if ($reply_to_message !== null){$data_send["reply_to_message_id"] = $reply_to_message;}
         if ($inline_keypad !== null){$data_send["inline_keypad"] = $inline_keypad;}
@@ -649,12 +678,19 @@ class BotClient {
             $data_send["chat_keypad"] = $chat_keypad;
             $data_send["chat_keypad_type"] = $chat_keypad_type;
         }
-        if ($caption !== null){$data_send["text"] = $caption;}
+        if (!empty($caption) & $metadata == null) {
+            list($caption, $metadata) = $this->parseTextMetadata($caption, $parse_mode);
+            $data_send["text"] = $caption;
+            if (!empty($metadata)) {
+                $data_send["metadata"] = $metadata;
+            }
+        } else {$data_send["metadata"] = $metadata;}
         $response = $this->bot('sendFile', $data_send);
         return ['data' => $response, 'file_id' => $file_id];
     }
 
-    public function sendVideo(string $chat_id, ?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New', ?string $reply_to_message = null,) {
+    public function sendVideo(string $chat_id, ?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New', ?string $reply_to_message = null, ?string $parse_mode = null, ?array $metadata = null) {
+        if ($parse_mode === null){$parse_mode = $this->parse_mode;}
         if ($file_path) {
             $upload_url = $this->requestSendFile("Video");
             $file_id = $this->uploadFileToRubika($upload_url, $file_path);
@@ -672,7 +708,13 @@ class BotClient {
             $data_send["chat_keypad"] = $chat_keypad;
             $data_send["chat_keypad_type"] = $chat_keypad_type;
         }
-        if ($caption !== null){$data_send["text"] = $caption;}
+        if (!empty($caption) & $metadata == null) {
+            list($caption, $metadata) = $this->parseTextMetadata($caption, $parse_mode);
+            $data_send["text"] = $caption;
+            if (!empty($metadata)) {
+                $data_send["metadata"] = $metadata;
+            }
+        } else {$data_send["metadata"] = $metadata;}
 
         return $this->bot("sendFile", $data_send);
     }
@@ -732,48 +774,65 @@ class BotClient {
         return json_encode($data_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     }
 
-    // ارسال درخواست به API روبیکا
     private function bot(string $method, array $data = []): string
     {
-        $url = "https://botapi.rubika.ir/v3/" . $this->token . "/" . $method;
-        $retry = 0;
+        $urls = [
+            "https://botapi.rubika.ir/v3/",
+            "https://messengerg2b1.iranlms.ir/v3/"
+        ];
 
-        while ($retry < $this->max_retries) {
-            $ch = curl_init($url);
+        foreach ($urls as $base) {
+            $url = $base . $this->token . "/" . $method;
+            $retry = 0;
 
-            try {
-                curl_setopt_array($ch, [
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_POST => true,
-                    CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-                    CURLOPT_POSTFIELDS => json_encode($data),
-                    CURLOPT_TIMEOUT => $this->timeout,
-                ]);
+            while ($retry < $this->max_retries) {
+                $ch = curl_init($url);
 
-                $response = curl_exec($ch);
-                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                try {
+                    if (!empty($data)) {
+                        $array_setopt = [
+                            CURLOPT_RETURNTRANSFER => true,
+                            CURLOPT_POST => true,
+                            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+                            CURLOPT_POSTFIELDS => json_encode($data),
+                            CURLOPT_TIMEOUT => $this->timeout
+                        ];
+                    }else{
+                        $array_setopt = [
+                            CURLOPT_RETURNTRANSFER => true,
+                            CURLOPT_POST => true,
+                            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+                            CURLOPT_TIMEOUT => $this->timeout
+                        ];
+                    }
+                    curl_setopt_array($ch, $array_setopt);
 
-                if ($response === false) {
-                    throw new \Exception("cURL error: " . curl_error($ch));
+                    $response = curl_exec($ch);
+                    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+                    if ($response === false) {
+                        throw new \Exception("cURL error: " . curl_error($ch));
+                    }
+
+                    if ($httpCode >= 200 && $httpCode < 300) {
+                        return $response; // موفقیت
+                    }
+
+                    throw new \Exception("API Error: HTTP {$httpCode} - " . ($response ?: 'No response'));
+                } catch (\Exception $e) {
+                    $retry++;
+                    if ($retry === $this->max_retries) {
+                        // اگر همه تلاش‌ها ناموفق بود، می‌رویم سراغ آدرس بعدی
+                        break;
+                    }
+                    usleep(500000); // 0.5 ثانیه مکث بین تلاش‌ها
+                } finally {
+                    curl_close($ch);
                 }
-
-                if ($httpCode >= 200 && $httpCode < 300) {
-                    return $response;
-                }
-
-                throw new \Exception("API Error: HTTP {$httpCode} - " . ($response ?: 'No response'));
-            } catch (\Exception $e) {
-                $retry++;
-                if ($retry === $this->max_retries) {
-                    throw $e;
-                }
-                usleep(500000); // 0.5 ثانیه مکث بین تلاش‌ها
-            } finally {
-                curl_close($ch);
             }
         }
 
-        return json_encode(['ok' => false, 'error' => 'Request failed']);
+        return json_encode(['ok' => false, 'error' => 'Request failed on all endpoints']);
     }
 
 }
