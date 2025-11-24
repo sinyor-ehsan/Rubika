@@ -199,7 +199,7 @@ class BotClient {
     }
 
     public function getMe() {
-        $response = $response = $this->bot("getMe");
+        $response = $this->bot("getMe");
         return $response;
     }
 
@@ -838,3 +838,4 @@ class BotClient {
 }
 
 ?>
+
