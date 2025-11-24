@@ -44,77 +44,118 @@ class Filters {
         };
     }
 
-    public static function command($expectedCommand = null) {
-        return new class($expectedCommand) {
-            private $expectedCommand;
+    public static function command(array|string|null $expectedCommand = null, array $prefixes = ["/"]) {
+        return new class($expectedCommand, $prefixes) {
+            private array $expectedCommands;
+            private array $prefixes;
 
-            public function __construct($expectedCommand) {
-                $this->expectedCommand = $expectedCommand;
-            }
-
-            public function match($message) {
-                // if (!isset($message->new_message->text)) return f
-                if (!isset($message->new_message) || !isset($message->new_message->text)) return false;
-
-                $text = trim($message->new_message->text);
-
-                // اگر پیام با / شروع نمی‌شه، کامند نیست
-                if (strpos($text, '/') !== 0) return false;
-
-                // اگر هیچ کامندی مشخص نشده، هر کامندی رو قبول کن
-                if ($this->expectedCommand === null || $this->expectedCommand === '') {
-                    return true;
+            public function __construct(array|string|null $expectedCommand, array $prefixes) {
+                // اگر رشته بود تبدیل به آرایه با یک عضو
+                if ($expectedCommand === null || $expectedCommand === '') {
+                    $this->expectedCommands = [];
+                } else {
+                    $this->expectedCommands = is_array($expectedCommand) ? $expectedCommand : [$expectedCommand];
                 }
 
-                // فقط کامند دقیق رو قبول کن (مثلاً /start)
-                return $text === '/' . ltrim($this->expectedCommand, '/');
-            }
-        };
-    }
-
-    public static function buttonId($expectedId = null) {
-        return new class($expectedId) {
-            private $expectedId;
-
-            public function __construct($expectedId) {
-                $this->expectedId = $expectedId;
-            }
-
-            public function match($message) {
-                $buttonId = $message->aux_data->button_id ?? null;
-
-                return $this->expectedId === null || $this->expectedId === ''
-                    || $buttonId === $this->expectedId;
-            }
-        };
-    }
-
-    public static function chatId(array $allowed_ids): object {
-        return new class($allowed_ids) {
-            private array $allowed_ids;
-
-            public function __construct(array $allowed_ids) {
-                $this->allowed_ids = $allowed_ids;
+                $this->prefixes = $prefixes;
             }
 
             public function match($message): bool {
-                return isset($message->chat_id) && in_array($message->chat_id, $this->allowed_ids);
+                if (!isset($message->new_message) || !isset($message->new_message->text)) {
+                    return false;
+                }
+
+                $text = trim($message->new_message->text);
+
+                // بررسی اینکه متن با یکی از prefixها شروع می‌شود
+                $matchedPrefix = null;
+                foreach ($this->prefixes as $prefix) {
+                    if (strpos($text, $prefix) === 0) {
+                        $matchedPrefix = $prefix;
+                        break;
+                    }
+                }
+
+                if ($matchedPrefix === null) {
+                    return false; // هیچ prefix مطابق نبود
+                }
+
+                // اگر هیچ کامندی مشخص نشده بود، هر کامندی رو قبول کن
+                if (empty($this->expectedCommands)) {
+                    return true;
+                }
+
+                // حذف prefix از متن برای مقایسه
+                $commandText = substr($text, strlen($matchedPrefix));
+
+                // بررسی اینکه کامند در لیست مجاز هست یا نه
+                foreach ($this->expectedCommands as $cmd) {
+                    if ($commandText === ltrim($cmd, $matchedPrefix)) {
+                        return true;
+                    }
+                }
+                return false;
             }
         };
     }
 
-    public static function senderId(array $allowed_ids): object {
+    public static function buttonId(array|string|null $expectedId = null) {
+        return new class($expectedId) {
+            private array $expectedIds;
+
+            public function __construct(array|string|null $expectedId) {
+                if ($expectedId === null || $expectedId === '') {
+                    $this->expectedIds = [];
+                } else {
+                    $this->expectedIds = is_array($expectedId) ? $expectedId : [$expectedId];
+                }
+            }
+
+            public function match($message): bool {
+                $buttonId = $message->aux_data->button_id ?? null;
+
+                // اگر هیچ آی‌دی مشخص نشده بود، همیشه true
+                if (empty($this->expectedIds)) {
+                    return true;
+                }
+
+                return in_array($buttonId, $this->expectedIds, true);
+            }
+        };
+    }
+
+    public static function chatId(array|string $allowed_ids): object {
         return new class($allowed_ids) {
             private array $allowed_ids;
 
-            public function __construct(array $allowed_ids) {
-                $this->allowed_ids = $allowed_ids;
+            public function __construct(array|string $allowed_ids) {
+                // اگر رشته بود، تبدیل به آرایه با یک عضو
+                $this->allowed_ids = is_array($allowed_ids) ? $allowed_ids : [$allowed_ids];
+            }
+
+            public function match($message): bool {
+                return isset($message->chat_id) && in_array($message->chat_id, $this->allowed_ids, true);
+            }
+        };
+    }
+
+    public static function senderId(string|array $allowed_ids): object {
+        return new class($allowed_ids) {
+            private array $allowed_ids;
+
+            public function __construct(string|array $allowed_ids) {
+                // اگر رشته بود، تبدیل به آرایه کن
+                if (is_string($allowed_ids)) {
+                    $this->allowed_ids = [$allowed_ids];
+                } else {
+                    $this->allowed_ids = $allowed_ids;
+                }
             }
 
             public function match($message): bool {
                 return isset($message->new_message) &&
                     isset($message->new_message->sender_id) &&
-                    in_array($message->new_message->sender_id, $this->allowed_ids);
+                    in_array($message->new_message->sender_id, $this->allowed_ids, true);
             }
         };
     }
