@@ -86,7 +86,7 @@ class Filters {
                 }
 
                 // حذف prefix از متن برای مقایسه
-                $commandText = substr($text, strlen($matchedPrefix));
+                $commandText = substr($text, mb_strlen($matchedPrefix));
 
                 // بررسی اینکه کامند در لیست مجاز هست یا نه
                 foreach ($this->expectedCommands as $cmd) {
