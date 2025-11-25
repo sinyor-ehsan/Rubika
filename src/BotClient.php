@@ -540,7 +540,8 @@ class BotClient {
                 $data_send["metadata"] = $metadata;
             }
         } else {$data_send["metadata"] = $metadata;}
-        return $this->bot("sendFile", $data_send);
+        $response = $this->bot('sendFile', $data_send);
+        return ['data' => $response, 'file_id' => $file_id];
     }
 
     /**
@@ -611,7 +612,8 @@ class BotClient {
             }
         } else {$data_send["metadata"] = $metadata;}
 
-        return $this->bot("sendFile", $data_send);
+        $response = $this->bot('sendFile', $data_send);
+        return ['data' => $response, 'file_id' => $file_id];
     }
     
     public function sendVoice(string $chat_id, ?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New', ?string $reply_to_message = null, ?string $parse_mode = null, ?array $metadata = null) {
@@ -641,7 +643,8 @@ class BotClient {
             }
         } else {$data_send["metadata"] = $metadata;}
 
-        return $this->bot("sendFile", $data_send);
+        $response = $this->bot('sendFile', $data_send);
+        return ['data' => $response, 'file_id' => $file_id];
     }
 
     public function sendMusic(string $chat_id, ?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New', ?string $reply_to_message = null, ?string $parse_mode = null, ?array $metadata = null) {
@@ -671,7 +674,8 @@ class BotClient {
             }
         } else {$data_send["metadata"] = $metadata;}
 
-        return $this->bot("sendFile", $data_send);
+        $response = $this->bot('sendFile', $data_send);
+        return ['data' => $response, 'file_id' => $file_id];
     }
 
     public function sendGif(string $chat_id, ?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New', ?string $reply_to_message = null, ?string $parse_mode = null, ?array $metadata = null): array {
@@ -732,7 +736,8 @@ class BotClient {
             }
         } else {$data_send["metadata"] = $metadata;}
 
-        return $this->bot("sendFile", $data_send);
+        $response = $this->bot('sendFile', $data_send);
+        return ['data' => $response, 'file_id' => $file_id];
     }
 
     // مرحله اول: دریافت آدرس آپلود فایل
