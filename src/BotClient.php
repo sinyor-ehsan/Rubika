@@ -152,33 +152,39 @@ class BotClient {
 
     public function runPolling() {
         $offset_id = null;
-
         $last_message_ids = [];
+
+        $idle_delay = 0.5;
+        $max_idle_delay = 30;
+
         while (true) {
             try {
-
                 $response = $this->getUpdates(limit: 100, offset_id: $offset_id);
 
                 if (empty($response->data->updates)) {
-                    sleep(2);
+                    sleep($idle_delay);
+                    $idle_delay = min($max_idle_delay, ($idle_delay * 1.5));
                     continue;
                 }
+
+                $idle_delay = 0.5;
 
                 foreach ($response->data->updates as $update) {
                     $time = null;
                     $new_message_id = null;
+
                     if (isset($update->new_message->time)) {
                         $time = $update->new_message->time;
                         $new_message_id = $update->new_message->message_id;
                     } else if (isset($update->updated_message->time)) {
                         $time = $update->updated_message->time;
-                        $new_message_id = $update->new_message->message_id;
+                        $new_message_id = $update->updated_message->message_id;
                     }
 
                     if (count($last_message_ids) >= 20) {
                         array_shift($last_message_ids);
                     }
-                    
+
                     if ($this->has_time_passed($time, 5)) {
                         continue;
                     }
@@ -189,16 +195,17 @@ class BotClient {
                         $this->run();
                         $last_message_ids[] = $new_message_id;
                     }
-                    usleep(500000);
                 }
 
                 if (isset($response->data->next_offset_id)) {
                     $offset_id = $response->data->next_offset_id;
                 }
+                usleep(300000);
 
             } catch (\Exception $e) {
                 echo "خطا در polling: " . $e->getMessage() . PHP_EOL;
-                sleep(5); // مکث قبل از تلاش مجدد
+                sleep($idle_delay);
+                $idle_delay = min($max_idle_delay, $idle_delay * 2);
             }
         }
     }
