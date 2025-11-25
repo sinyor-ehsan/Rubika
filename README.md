@@ -42,7 +42,7 @@ $bot->onMessage(null, function(BotClient $bot, Message $message) {
     $message->replyMessage("**hello __from ~~[Botkaplus!](https://github.com/sinyor-ehsan/Rubika)~~__**");
 });
 
-$bot->run();
+$bot->runPolling();
 
 ?>
 ```
