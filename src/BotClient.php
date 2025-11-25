@@ -185,7 +185,7 @@ class BotClient {
                         array_shift($last_message_ids);
                     }
 
-                    if ($this->has_time_passed($time, 5)) {
+                    if ($this->has_time_passed($time, 31)) {
                         continue;
                     }
 
@@ -200,7 +200,7 @@ class BotClient {
                 if (isset($response->data->next_offset_id)) {
                     $offset_id = $response->data->next_offset_id;
                 }
-                usleep(300000);
+                usleep(100000);
 
             } catch (\Exception $e) {
                 echo "خطا در polling: " . $e->getMessage() . PHP_EOL;
@@ -836,6 +836,7 @@ class BotClient {
 
                     throw new \Exception("API Error: HTTP {$httpCode} - " . ($response ?: 'No response'));
                 } catch (\Exception $e) {
+                    echo "API Eror: " . $e->getMessage() . PHP_EOL;
                     $retry++;
                     if ($retry === $this->max_retries) {
                         // اگر همه تلاش‌ها ناموفق بود، می‌رویم سراغ آدرس بعدی
