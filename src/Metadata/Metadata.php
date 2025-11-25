@@ -31,7 +31,7 @@ class TrackParsed {
     ];
 
     private static function utf16Len($str) {
-        return strlen(mb_convert_encoding($str, 'UTF-16BE', 'UTF-8')) / 2;
+        return mb_strlen(mb_convert_encoding($str, 'UTF-16BE', 'UTF-8')) / 2;
     }
 
     function html2md(string $src): string {
@@ -83,7 +83,7 @@ class TrackParsed {
         foreach ($matches as $m) {
             $whole = $m[0][0];
             $start = $m[0][1];
-            $end = $start + strlen($whole);
+            $end = $start + mb_strlen($whole);
 
             $adjFrom = self::utf16Len(substr($src, 0, $start)) - $byteOffset;
             $adjCharFrom = $start - $charOffset;
@@ -132,7 +132,7 @@ class TrackParsed {
 
             $normalizedText = substr($normalizedText, 0, $adjCharFrom) . $inner . substr($normalizedText, $end - $charOffset);
             $byteOffset += self::utf16Len($whole) - $contentLen;
-            $charOffset += strlen($whole) - strlen($inner);
+            $charOffset += mb_strlen($whole) - mb_strlen($inner);
         }
 
         $result = ["text" => trim($normalizedText)];
