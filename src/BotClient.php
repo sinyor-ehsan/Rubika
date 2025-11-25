@@ -177,7 +177,7 @@ class BotClient {
                         $time = $update->new_message->time;
                         $new_message_id = $update->new_message->message_id;
                     } else if (isset($update->updated_message->time)) {
-                        $time = $update->updated_message->time;
+                        $time = time();
                         $new_message_id = $update->updated_message->message_id;
                     }
 
