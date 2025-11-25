@@ -190,10 +190,10 @@ class BotClient {
                     }
 
                     if (!in_array($new_message_id, $last_message_ids)) {
+                        $last_message_ids[] = $new_message_id;
                         $this->rData = (object)['update' => $update];
                         $this->get_rData($this->rData);
                         $this->run();
-                        $last_message_ids[] = $new_message_id;
                     }
                 }
 
