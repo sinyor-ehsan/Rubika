@@ -804,53 +804,28 @@ class BotClient {
 
         foreach ($urls as $base) {
             $url = $base . $this->token . "/" . $method;
-            $retry = 0;
+            $ch = curl_init($url);
 
-            while ($retry < $this->max_retries) {
-                $ch = curl_init($url);
+            $array_setopt = [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POST => true,
+                CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+                CURLOPT_TIMEOUT => $this->timeout
+            ];
+            if (!empty($data)) {
+                $array_setopt[CURLOPT_POSTFIELDS] = json_encode($data);
+            }
+            curl_setopt_array($ch, $array_setopt);
 
-                try {
-                    if (!empty($data)) {
-                        $array_setopt = [
-                            CURLOPT_RETURNTRANSFER => true,
-                            CURLOPT_POST => true,
-                            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-                            CURLOPT_POSTFIELDS => json_encode($data),
-                            CURLOPT_TIMEOUT => $this->timeout
-                        ];
-                    }else{
-                        $array_setopt = [
-                            CURLOPT_RETURNTRANSFER => true,
-                            CURLOPT_POST => true,
-                            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-                            CURLOPT_TIMEOUT => $this->timeout
-                        ];
-                    }
-                    curl_setopt_array($ch, $array_setopt);
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
 
-                    $response = curl_exec($ch);
-                    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-                    if ($response === false) {
-                        throw new \Exception("cURL error: " . curl_error($ch));
-                    }
-
-                    if ($httpCode >= 200 && $httpCode < 300) {
-                        return $response; // موفقیت
-                    }
-
-                    throw new \Exception("API Error: HTTP {$httpCode} - " . ($response ?: 'No response'));
-                } catch (\Exception $e) {
-                    echo "API Eror: " . $e->getMessage() . PHP_EOL;
-                    $retry++;
-                    if ($retry === $this->max_retries) {
-                        // اگر همه تلاش‌ها ناموفق بود، می‌رویم سراغ آدرس بعدی
-                        break;
-                    }
-                    usleep(500000); // 0.5 ثانیه مکث بین تلاش‌ها
-                } finally {
-                    curl_close($ch);
-                }
+            if ($response !== false && $httpCode >= 200 && $httpCode < 300) {
+                return $response; // موفقیت → همینجا برگرد
+            } else {
+                echo "API Error on {$url}: " . ($response ?: 'No response') . PHP_EOL;
+                // میره سراغ URL بعدی
             }
         }
 
