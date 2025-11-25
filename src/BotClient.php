@@ -797,48 +797,39 @@ class BotClient {
 
     private function bot(string $method, array $data = []): string
     {
-        $primaryUrl = "https://botapi.rubika.ir/v3/" . $this->token . "/" . $method;
-        $response = $this->sendRequest($primaryUrl, $data);
-        if ($response !== null) {
-            return $response;
-        }
-
-        $fallbackUrl = "https://messengerg2b1.iranlms.ir/v3/" . $this->token . "/" . $method;
-        $response = $this->sendRequest($fallbackUrl, $data);
-        if ($response !== null) {
-            return $response;
-        }
-
-        return json_encode(['status' => false, 'error' => 'Request failed on all endpoints']);
-    }
-
-    private function sendRequest(string $url, array $data = []): ?string
-    {
-        $ch = curl_init($url);
-        $array_setopt = [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-            CURLOPT_TIMEOUT => $this->timeout
+        $urls = [
+            "https://botapi.rubika.ir/v3/",
+            "https://messengerg2b1.iranlms.ir/v3/"
         ];
-        if (!empty($data)) {
-            $array_setopt[CURLOPT_POSTFIELDS] = json_encode($data);
-        }
-        curl_setopt_array($ch, $array_setopt);
 
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+        foreach ($urls as $base) {
+            $url = $base . $this->token . "/" . $method;
+            $ch = curl_init($url);
 
-        if ($response !== false && $httpCode >= 200 && $httpCode < 300) {
-            $decoded = json_decode($response, true);
-            if (isset($decoded['status']) && $decoded['status'] === "OK") {
-                return $response;
+            $array_setopt = [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POST => true,
+                CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+                CURLOPT_TIMEOUT => $this->timeout
+            ];
+            if (!empty($data)) {
+                $array_setopt[CURLOPT_POSTFIELDS] = json_encode($data);
+            }
+            curl_setopt_array($ch, $array_setopt);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($response !== false && $httpCode >= 200 && $httpCode < 300) {
+                return $response; // موفقیت → همینجا برگرد
+            } else {
+                echo "API Error on {$url}: " . ($response ?: 'No response') . PHP_EOL;
+                // میره سراغ URL بعدی
             }
         }
 
-        echo "API Error on {$url}: " . ($response ?: 'No response') . PHP_EOL;
-        return null;
+        return json_encode(['ok' => false, 'error' => 'Request failed on all endpoints']);
     }
 
 }
