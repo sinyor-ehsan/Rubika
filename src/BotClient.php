@@ -142,7 +142,7 @@ class BotClient {
                     if ($this->propagationStopped) break;
                 }
             } else if ($type === 'updated' && $this->updated_message) {
-                if ($filter === null || $filter->match($this->inline_message)) {
+                if ($filter === null || $filter->match($this->updated_message)) {
                     call_user_func($handler['callback'], $this, $this->message_wrapper);
                     if ($this->propagationStopped) break;
                 }
@@ -804,29 +804,40 @@ class BotClient {
 
         foreach ($urls as $base) {
             $url = $base . $this->token . "/" . $method;
-            $ch = curl_init($url);
+            $retry = 0;
 
-            $array_setopt = [
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_POST => true,
-                CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-                CURLOPT_TIMEOUT => $this->timeout
-            ];
-            if (!empty($data)) {
-                $array_setopt[CURLOPT_POSTFIELDS] = json_encode($data);
+            while ($retry < $this->max_retries) {
+                $ch = curl_init($url);
+
+                $array_setopt = [
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_POST => true,
+                    CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+                    CURLOPT_TIMEOUT => $this->timeout,
+                ];
+                if (!empty($data)) {
+                    $array_setopt[CURLOPT_POSTFIELDS] = json_encode($data);
+                }
+                curl_setopt_array($ch, $array_setopt);
+
+                $response = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $error    = curl_error($ch);
+                curl_close($ch);
+
+                if ($response !== false && $httpCode >= 200 && $httpCode < 300) {
+                    return $response; // موفقیت
+                }
+
+                // خطا → تلاش مجدد
+                $retry++;
+                if ($retry < $this->max_retries) {
+                    usleep(500000); // 0.5 ثانیه مکث بین تلاش‌ها
+                } else {
+                    echo "API Error on {$url}: " . ($response ?: $error ?: 'No response') . PHP_EOL;
+                }
             }
-            curl_setopt_array($ch, $array_setopt);
-
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-
-            if ($response !== false && $httpCode >= 200 && $httpCode < 300) {
-                return $response; // موفقیت → همینجا برگرد
-            } else {
-                echo "API Error on {$url}: " . ($response ?: 'No response') . PHP_EOL;
-                // میره سراغ URL بعدی
-            }
+            // اگر همه‌ی تلاش‌ها روی این URL شکست خورد → میره سراغ URL بعدی
         }
 
         return json_encode(['ok' => false, 'error' => 'Request failed on all endpoints']);
@@ -835,4 +846,3 @@ class BotClient {
 }
 
 ?>
-
