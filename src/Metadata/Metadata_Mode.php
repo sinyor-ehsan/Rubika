@@ -615,12 +615,34 @@ class Markdown {
 
             $length_text = self::utf16Len($inner);
 
-            $part = [
-                "type" => self::$typeMap[$gname] ?? "Unknown",
-                "from_index" => $adjFrom,
-                "length" => $length_text,
-                "link_url" => $linkHref,
+            $mentionPrefixes = [
+                "u" => "User",
+                "g" => "Group",
+                "c" => "Channel",
+                "b" => "Bot",
             ];
+            // بررسی نوع لینک یا منشن
+            $firstChar = substr($linkHref, 0, 1);
+            if (isset($mentionPrefixes[$firstChar])) {
+                $mentionType = $mentionPrefixes[$firstChar];
+                $part = [
+                    "type" => "MentionText",
+                    "from_index" => $adjFrom,
+                    "length" => $length_text,
+                    "mention_text_user_id" => $linkHref,
+                    "mention_text_object_guid" => $linkHref,
+                    "mention_text_object_type" => $mentionType,
+
+
+                ];
+            } else {
+                $part = [
+                    "type" => self::$typeMap[$gname] ?? "Unknown",
+                    "from_index" => $adjFrom,
+                    "length" => $length_text,
+                    "link_url" => $linkHref,
+                ];
+            }
             $payloadParts[] = $part;
 
             $normalizedText = substr($normalizedText, 0, $adjCharFrom) . $innerText . substr($normalizedText, $end - $charOffset);
