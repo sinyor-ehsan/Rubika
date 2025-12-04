@@ -526,6 +526,7 @@ class BotClient {
         $data_send = [
             "chat_id" => $chat_id,
             "file_id" => $file_id,
+            "text" => $caption
         ];
         if ($reply_to_message !== null){$data_send["reply_to_message_id"] = $reply_to_message;}
         if ($inline_keypad !== null){$data_send["inline_keypad"] = $inline_keypad;}
@@ -552,7 +553,7 @@ class BotClient {
      * @param string $file_id شناسه فایل مورد نظر
      * @param string $file_type in ['File', 'Image', 'Voice', 'Music', 'Gif', 'Video'] نوع فایل. 
      */
-    public function sendFile(string $chat_id, ?string $file_path = null, ?string $file_id = null, ?string $file_type = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New', ?string $reply_to_message = null, ?string $parse_mode = null, ?array $metadata = null): array {
+    public function sendFile($chat_id, $file_path = null, $file_id = null, $file_type = null, $caption = null, $inline_keypad = null, $chat_keypad = null, $chat_keypad_type = 'New', $reply_to_message = null, $parse_mode = null, $metadata = null): array {
         if ($parse_mode === null){$parse_mode = $this->parse_mode;}
         if (!isset($file_id)) {
             if ($file_type === null){
@@ -567,6 +568,7 @@ class BotClient {
         $data_send = [
             'chat_id' => $chat_id,
             'file_id' => $file_id,
+            "text" => $caption
         ];
         if ($reply_to_message !== null){$data_send["reply_to_message_id"] = $reply_to_message;}
         if ($inline_keypad !== null){$data_send["inline_keypad"] = $inline_keypad;}
@@ -585,7 +587,7 @@ class BotClient {
         return ['data' => $response, 'file_id' => $file_id];
     }
 
-    public function sendImage(string $chat_id, ?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New', ?string $reply_to_message = null, ?string $parse_mode = null, ?array $metadata = null) {
+    public function sendImage($chat_id, $file_path = null, $file_id = null, $caption = null, $inline_keypad = null, $chat_keypad = null, $chat_keypad_type = 'New', $reply_to_message = null, $parse_mode = null, $metadata = null) {
         if ($parse_mode === null){$parse_mode = $this->parse_mode;}
         if ($file_path) {
             $upload_url = $this->requestSendFile("Image");
@@ -595,6 +597,7 @@ class BotClient {
         $data_send = [
             "chat_id" => $chat_id,
             "file_id" => $file_id,
+            "text" => $caption
         ];
 
         if ($reply_to_message !== null) {$data_send["reply_to_message_id"] = $reply_to_message;}
@@ -616,7 +619,7 @@ class BotClient {
         return ['data' => $response, 'file_id' => $file_id];
     }
     
-    public function sendVoice(string $chat_id, ?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New', ?string $reply_to_message = null, ?string $parse_mode = null, ?array $metadata = null) {
+    public function sendVoice($chat_id, $file_path = null, $file_id = null, $caption = null, $inline_keypad = null, $chat_keypad = null, $chat_keypad_type = 'New', $reply_to_message = null, $parse_mode = null, $metadata = null) {
         if ($parse_mode === null){$parse_mode = $this->parse_mode;}
         if ($file_path) {
             $upload_url = $this->requestSendFile("Voice");
@@ -626,6 +629,7 @@ class BotClient {
         $data_send = [
             "chat_id" => $chat_id,
             "file_id" => $file_id,
+            "text" => $caption
         ];
 
         if ($reply_to_message !== null) {$data_send["reply_to_message_id"] = $reply_to_message;}
@@ -647,7 +651,7 @@ class BotClient {
         return ['data' => $response, 'file_id' => $file_id];
     }
 
-    public function sendMusic(string $chat_id, ?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New', ?string $reply_to_message = null, ?string $parse_mode = null, ?array $metadata = null) {
+    public function sendMusic($chat_id, $file_path = null, $file_id = null, $caption = null, $inline_keypad = null, $chat_keypad = null, $chat_keypad_type = 'New', $reply_to_message = null, $parse_mode = null, $metadata = null) {
         if ($parse_mode === null){$parse_mode = $this->parse_mode;}
         if ($file_path) {
             $upload_url = $this->requestSendFile("Music");
@@ -657,6 +661,7 @@ class BotClient {
         $data_send = [
             "chat_id" => $chat_id,
             "file_id" => $file_id,
+            "text" => $caption
         ];
 
         if ($reply_to_message !== null) {$data_send["reply_to_message_id"] = $reply_to_message;}
@@ -678,7 +683,7 @@ class BotClient {
         return ['data' => $response, 'file_id' => $file_id];
     }
 
-    public function sendGif(string $chat_id, ?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New', ?string $reply_to_message = null, ?string $parse_mode = null, ?array $metadata = null): array {
+    public function sendGif($chat_id, $file_path = null, $file_id = null, $caption = null, $inline_keypad = null, $chat_keypad = null, $chat_keypad_type = 'New', $reply_to_message = null, $parse_mode = null, $metadata = null): array {
         if ($parse_mode === null){$parse_mode = $this->parse_mode;}
         if (!isset($file_id)) {
             $mime_type = mime_content_type($file_path);
@@ -691,6 +696,7 @@ class BotClient {
         $data_send = [
             'chat_id' => $chat_id,
             'file_id' => $file_id,
+            "text" => $caption
         ];
         if ($reply_to_message !== null){$data_send["reply_to_message_id"] = $reply_to_message;}
         if ($inline_keypad !== null){$data_send["inline_keypad"] = $inline_keypad;}
@@ -709,7 +715,7 @@ class BotClient {
         return ['data' => $response, 'file_id' => $file_id];
     }
 
-    public function sendVideo(string $chat_id, ?string $file_path = null, ?string $file_id = null, ?string $caption = null, ?array $inline_keypad = null, ?array $chat_keypad = null, string $chat_keypad_type = 'New', ?string $reply_to_message = null, ?string $parse_mode = null, ?array $metadata = null) {
+    public function sendVideo($chat_id, $file_path = null, $file_id = null, $caption = null, $inline_keypad = null, $chat_keypad = null, $chat_keypad_type = 'New', $reply_to_message = null, $parse_mode = null, $metadata = null) {
         if ($parse_mode === null){$parse_mode = $this->parse_mode;}
         if ($file_path) {
             $upload_url = $this->requestSendFile("Video");
@@ -719,6 +725,7 @@ class BotClient {
         $data_send = [
             "chat_id" => $chat_id,
             "file_id" => $file_id,
+            "text" => $caption
         ];
 
         if ($reply_to_message !== null) {$data_send["reply_to_message_id"] = $reply_to_message;}
