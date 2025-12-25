@@ -72,4 +72,7 @@ class KeypadChat {
             "on_time_keyboard" => $this->on_time_keyboard
         ];
     }
+
 }
+
+?>
