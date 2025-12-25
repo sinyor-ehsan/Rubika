@@ -2,8 +2,9 @@
 namespace Botkaplus;
 
 use Botkaplus\BotClient;
+use ArrayAccess;
 
-class Message {
+class Message implements ArrayAccess {
     private $bot;
 
     // پیام خام دریافتی از روبیکا
@@ -131,7 +132,7 @@ class Message {
      * @return stdClass شیء پاسخ از سرور. موفقیت یا شکست ارسال پیام
      */
     public function replyMessage($text, $inline_keypad = null, $chat_keypad = null, $chat_keypad_type = "New", $parse_mode = null, $metadata = null) {
-        return $this->bot->sendMessage($this->chat_id, $text, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id, $parse_mode);
+        return $this->bot->sendMessage($this->chat_id, $text, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id, $parse_mode, $metadata);
     }
 
     public function replyPoll(string $question, array $options, $type = "Regular", $allows_multiple_answers = null, $is_anonymous = true, $correct_option_index = null, $hint = null, $inline_keypad = null, $chat_keypad = null, $chat_keypad_type = "New") {
@@ -223,10 +224,25 @@ class Message {
         return $this->bot->sendVideo($this->chat_id, $file_path, $file_id, $caption, $inline_keypad, $chat_keypad, $chat_keypad_type, $this->message_id, $parse_mode, $metadata);
     }
 
-    // public function __toString() {
-    //     return json_encode($this->message, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-    //     // return "message: " . json_encode($this->message, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-    // }
+    public function __toString() {
+        return json_encode($this->message, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    }
+
+    public function offsetGet($key): mixed {
+        return $this->message->$key;
+    }
+
+    public function offsetExists($key): bool {
+        return isset($this->message->$key);
+    }
+
+    public function offsetSet($key, $value): void {
+        $this->message->$key = $value;
+    }
+
+    public function offsetUnset($key): void {
+        unset($this->message->$key);
+    }
 }
 ?>
 
