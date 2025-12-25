@@ -19,7 +19,7 @@ class BotClient {
 
     private $token;
     private $rData;
-    private $url_webhook;
+    private $webhook = false;
     private $propagationStopped = false;
     private $timeout;
     private $max_retries;
@@ -40,24 +40,20 @@ class BotClient {
     private $handlers = [];
 
     // سازنده کلاس
-    public function __construct($token, $rData = null, $timeout = 30, $max_retries = 3, $parse_mode = "MarkdownMode", $url_webhook = null) {
+    public function __construct($token, $rData = null, $timeout = 30, $max_retries = 3, $parse_mode = "MarkdownMode") {
         $this->token = $token;
         $this->rData = $rData;
         $this->timeout = $timeout;
         $this->max_retries = $max_retries;
         $this->parse_mode = $parse_mode;
-        $this->url_webhook = $url_webhook;
-        if ($url_webhook !== null) {$this->setWebhook($url_webhook);}
         if ($rData !== null) {$this->get_rData($rData);}
     }
 
-    // استخراج داده‌ها از ورودی
     private function get_rData($rData) {
         $this->inline_message       = $rData->inline_message ?? null;
         $this->message              = $rData->update ?? $this->inline_message;
         $this->new_message          = $this->message->new_message ?? null;
         $this->updated_message      = $this->message->updated_message ?? null;
-        // ساخت کلاس ریپلای
         $this->message_wrapper = new Message($this, $rData);
     }
 
@@ -126,26 +122,106 @@ class BotClient {
         ];
     }
 
-    public function run() { // ✅ اجرای هندلرها در حالت webhook
+    public function runHandlers() {
         foreach ($this->handlers as $handler) {
+
             $filter = $handler['filter'];
             $type   = $handler['type'] ?? 'message';
 
-            if ($type === 'message' && $this->new_message) {
-                if ($filter === null || $filter->match($this->message)) {
+            $target = match ($type) {
+                'message' => $this->new_message ? $this->message : null,
+                'inline'  => $this->inline_message,
+                'updated' => $this->updated_message,
+                default   => null,
+            };
+
+            if (!$target) {
+                continue;
+            }
+
+            // $filter->match($target)
+            if ($filter === null || $filter->match($this->message_wrapper)) {
+
+                try {
                     call_user_func($handler['callback'], $this, $this->message_wrapper);
-                    if ($this->propagationStopped) break;
+                } catch (\Throwable $e) {
+                    // ANSI Colors
+                    $red     = "\033[31m";
+                    $yellow  = "\033[33m";
+                    $cyan    = "\033[36m";
+                    $reset   = "\033[0m";
+                    $bold    = "\033[1m";
+
+                    echo "{$yellow}⚠️  {$bold}Error in callback{$reset}\n";
+
+                    echo "{$cyan}Message:{$reset} {$red}" . $e->getMessage() . "{$reset}\n";
+                    echo "{$cyan}File:{$reset} " . $e->getFile() . "\n";
+                    echo "{$cyan}Eror in Line:{$reset} " . $e->getLine() . "\n";
+
+                    echo "{$cyan}Stack trace:{$reset}\n";
+                    echo $e->getTraceAsString() . "\n";
+
+                    echo "{$yellow}" . str_repeat("-", 50) . "{$reset}\n";
                 }
-            } else if ($type === 'inline' && $this->inline_message) {
-                if ($filter === null || $filter->match($this->inline_message)) {
-                    call_user_func($handler['callback'], $this, $this->message_wrapper);
-                    if ($this->propagationStopped) break;
+
+                if ($this->propagationStopped) {
+                    break;
                 }
-            } else if ($type === 'updated' && $this->updated_message) {
-                if ($filter === null || $filter->match($this->updated_message)) {
-                    call_user_func($handler['callback'], $this, $this->message_wrapper);
-                    if ($this->propagationStopped) break;
+            }
+        }
+    }
+
+    public function run($url_webhook=null, $path_webhook = "/webhook", $host = "0.0.0.0", $port = 8000, $set_webhook=true) {
+        if ($set_webhook && $url_webhook !== null && $this->webhook === false) {
+            $this->setWebhook($url_webhook . $path_webhook);
+            $this->webhook = true;
+        }
+
+        $server = stream_socket_server("tcp://{$host}:{$port}", $errno, $errstr);
+
+        if (!$server) {
+            die("Cannot create server: $errstr");
+        }
+
+        echo "Server running at http://{$host}:{$port}{$path_webhook}\n";
+
+        while (true) {
+            try {
+                $conn = @stream_socket_accept($server, -1);
+                if (!$conn) continue;
+
+                $request = fread($conn, 4096);
+
+                preg_match('#(GET|POST) (.*?) HTTP#', $request, $match);
+                $url = $match[2] ?? "/";
+                $method = $match[1] ?? null;
+
+                $green   = "\033[32m";
+                $reset   = "\033[0m";
+                echo "{$green}$method{$reset} $url\n";
+
+                if ($url === $path_webhook) {
+
+                    list($headers, $body) = explode("\r\n\r\n", $request, 2);
+
+                    $Data = json_decode($body);
+
+                    if ($Data) {
+
+                        $this->rData = $Data;
+
+                        $this->get_rData($Data);
+
+                        $this->runHandlers();
+                    }
                 }
+
+                $response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nOK";
+                fwrite($conn, $response);
+                fclose($conn);
+
+            } catch (\Exception $e) {
+                echo "خطا در polling: " . $e->getMessage() . PHP_EOL;
             }
         }
     }
@@ -154,24 +230,22 @@ class BotClient {
         $offset_id = null;
         $last_message_ids = [];
 
-        $idle_delay = 0.5;
-        $max_idle_delay = 30;
-
         while (true) {
             try {
                 $response = $this->getUpdates(limit: 100, offset_id: $offset_id);
 
                 if (empty($response->data->updates)) {
-                    sleep($idle_delay);
-                    $idle_delay = min($max_idle_delay, ($idle_delay * 1.5));
+                    usleep(500000);
                     continue;
                 }
-
-                $idle_delay = 0.5;
 
                 foreach ($response->data->updates as $update) {
                     $time = null;
                     $new_message_id = null;
+                    
+                    if ($update->type === "RemovedMessage"){
+                        continue;
+                    }
 
                     if (isset($update->new_message->time)) {
                         $time = $update->new_message->time;
@@ -185,7 +259,7 @@ class BotClient {
                         array_shift($last_message_ids);
                     }
 
-                    if ($this->has_time_passed($time, 31)) {
+                    if ($this->has_time_passed($time, 10)) {
                         continue;
                     }
 
@@ -193,7 +267,7 @@ class BotClient {
                         $last_message_ids[] = $new_message_id;
                         $this->rData = (object)['update' => $update];
                         $this->get_rData($this->rData);
-                        $this->run();
+                        $this->runHandlers();
                     }
                 }
 
@@ -204,8 +278,7 @@ class BotClient {
 
             } catch (\Exception $e) {
                 echo "خطا در polling: " . $e->getMessage() . PHP_EOL;
-                sleep($idle_delay);
-                $idle_delay = min($max_idle_delay, $idle_delay * 2);
+                sleep(2);
             }
         }
     }
