@@ -1,6 +1,8 @@
 <?php
 namespace Botkaplus;
 
+use Botkaplus\Message;
+
 class Filters {
     
     public static function text($expectedText = null) {
@@ -11,11 +13,12 @@ class Filters {
                 $this->expectedText = $expectedText;
             }
 
-            public function match($message) {
-                if (!isset($message->new_message?->text)) return false;
+            public function match(Message $message) {
+                $text = $message->text;
+                if (!isset($text)) return false;
 
                 return $this->expectedText === null || $this->expectedText === ''
-                    || trim($message->new_message->text) === $this->expectedText;
+                    || trim($text) === $this->expectedText;
             }
         };
     }
@@ -28,10 +31,10 @@ class Filters {
                 $this->pattern = $pattern;
             }
 
-            public function match($message) {
-                if (!isset($message->new_message?->text)) return false;
+            public function match(Message $message) {
+                if ($message->text === null) return false;
 
-                $text = trim($message->new_message->text);
+                $text = trim($message->text);
 
                 // اگر الگو خالی یا null باشد، همیشه true برمی‌گرداند
                 if ($this->pattern === null || $this->pattern === '') {
@@ -54,20 +57,23 @@ class Filters {
                 if ($expectedCommand === null || $expectedCommand === '') {
                     $this->expectedCommands = [];
                 } else {
-                    $this->expectedCommands = is_array($expectedCommand) ? $expectedCommand : [$expectedCommand];
+                    $this->expectedCommands = is_array($expectedCommand)
+                        ? $expectedCommand
+                        : [$expectedCommand];
                 }
 
                 $this->prefixes = $prefixes;
             }
 
-            public function match($message): bool {
-                if (!isset($message->new_message) || !isset($message->new_message->text)) {
+            public function match(Message $message): bool {
+                // پیام باید متن داشته باشد
+                if ($message->text === null) {
                     return false;
                 }
 
-                $text = trim($message->new_message->text);
+                $text = trim($message->text);
 
-                // بررسی اینکه متن با یکی از prefixها شروع می‌شود
+                // پیدا کردن prefix
                 $matchedPrefix = null;
                 foreach ($this->prefixes as $prefix) {
                     if (strpos($text, $prefix) === 0) {
@@ -80,20 +86,28 @@ class Filters {
                     return false; // هیچ prefix مطابق نبود
                 }
 
-                // اگر هیچ کامندی مشخص نشده بود، هر کامندی رو قبول کن
+                // اگر هیچ کامندی مشخص نشده بود، هر کامندی قبول است
                 if (empty($this->expectedCommands)) {
                     return true;
                 }
 
-                // حذف prefix از متن برای مقایسه
-                $commandText = substr($text, mb_strlen($matchedPrefix));
+                // حذف prefix
+                $commandText = substr($text, strlen($matchedPrefix));
 
                 // بررسی اینکه کامند در لیست مجاز هست یا نه
                 foreach ($this->expectedCommands as $cmd) {
-                    if ($commandText === ltrim($cmd, $matchedPrefix)) {
+                    // حذف prefix احتمالی از expectedCommand
+                    $cmd = preg_replace(
+                        '/^' . preg_quote($matchedPrefix, '/') . '/',
+                        '',
+                        $cmd
+                    );
+
+                    if ($commandText === $cmd) {
                         return true;
                     }
                 }
+
                 return false;
             }
         };
@@ -111,8 +125,8 @@ class Filters {
                 }
             }
 
-            public function match($message): bool {
-                $buttonId = $message->aux_data->button_id ?? null;
+            public function match(Message $message): bool {
+                $buttonId = $message->button_id ?? null;
 
                 // اگر هیچ آی‌دی مشخص نشده بود، همیشه true
                 if (empty($this->expectedIds)) {
@@ -133,7 +147,7 @@ class Filters {
                 $this->allowed_ids = is_array($allowed_ids) ? $allowed_ids : [$allowed_ids];
             }
 
-            public function match($message): bool {
+            public function match(Message $message): bool {
                 return isset($message->chat_id) && in_array($message->chat_id, $this->allowed_ids, true);
             }
         };
@@ -152,17 +166,16 @@ class Filters {
                 }
             }
 
-            public function match($message): bool {
-                return isset($message->new_message) &&
-                    isset($message->new_message->sender_id) &&
-                    in_array($message->new_message->sender_id, $this->allowed_ids, true);
+            public function match(Message $message): bool {
+                return $message->sender_id !== null
+                    && in_array($message->sender_id, $this->allowed_ids, true);
             }
         };
     }
 
     public static function private(): object {
         return new class {
-            public function match($message): bool {
+            public function match(Message $message): bool {
                 return isset($message->chat_id) && str_starts_with($message->chat_id, "b0");
             }
         };
@@ -170,7 +183,7 @@ class Filters {
 
     public static function group(): object {
         return new class {
-            public function match($message): bool {
+            public function match(Message $message): bool {
                 return isset($message->chat_id) && str_starts_with($message->chat_id, "g0");
             }
         };
@@ -178,7 +191,7 @@ class Filters {
 
     public static function channel(): object {
         return new class {
-            public function match($message): bool {
+            public function match(Message $message): bool {
                 return isset($message->chat_id) && str_starts_with($message->chat_id, "c0");
             }
         };
@@ -186,24 +199,24 @@ class Filters {
 
     public static function replied() {
         return new class {
-            public function match($message) {
-                return isset($message->new_message?->reply_to_message_id);
+            public function match(Message $message) {
+                return isset($message->reply_to_message_id);
             }
         };
     }
 
     public static function sticker() {
         return new class {
-            public function match($message) {
-                return isset($message->new_message?->sticker);
+            public function match(Message $message) {
+                return isset($message->sticker);
             }
         };
     }
 
     public static function hasFile() {
         return new class {
-            public function match($message) {
-                return isset($message->new_message?->file);
+            public function match(Message $message) {
+                return isset($message->file);
             }
         };
     }
@@ -224,8 +237,8 @@ class Filters {
 
     public static function photo() {
         return new class {
-            public function match($message) {
-                $fileName = $message->new_message?->file->file_name ?? null;
+            public function match(Message $message) {
+                $fileName = $message->file_name ?? null;
                 if (!$fileName) return false;
 
                 $imageExtensions = ['jpg', 'jpeg', 'png'];
@@ -238,8 +251,8 @@ class Filters {
 
     public static function video() {
         return new class {
-            public function match($message) {
-                $fileName = $message->new_message?->file->file_name ?? null;
+            public function match(Message $message) {
+                $fileName = $message->file_name ?? null;
                 if (!$fileName) return false;
 
                 $videoExtensions = ['mp4', 'mov', 'mkv', 'avi', 'webm'];
@@ -252,12 +265,12 @@ class Filters {
 
     public static function music() {
         return new class {
-            public function match($message) {
-                $file = $message->new_message?->file ?? null;
+            public function match(Message $message) {
+                $file = $message->file ?? null;
                 if (!$file || !isset($file->file_name)) return false;
 
                 $musicExtensions = ['mp3', 'wav', 'flac', 'aac', 'm4a'];
-                $extension = strtolower(pathinfo($file->file_name, PATHINFO_EXTENSION));
+                $extension = strtolower(pathinfo($message->file_name, PATHINFO_EXTENSION));
 
                 return in_array($extension, $musicExtensions);
             }
@@ -266,8 +279,8 @@ class Filters {
 
     public static function voice() {
         return new class {
-            public function match($message) {
-                $fileName = $message->new_message?->file->file_name ?? null;
+            public function match(Message $message) {
+                $fileName = $message->file_name ?? null;
                 if (!$fileName) return false;
 
                 return strtolower(pathinfo($fileName, PATHINFO_EXTENSION)) === 'ogg';
@@ -277,8 +290,8 @@ class Filters {
 
     public static function gif() {
         return new class {
-            public function match($message) {
-                $fileName = $message->new_message?->file->file_name ?? null;
+            public function match(Message $message) {
+                $fileName = $message->file_name ?? null;
                 if (!$fileName) return false;
 
                 $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
@@ -290,6 +303,7 @@ class Filters {
     public static function forward() {
         return new class {
             public function match($message) {
+                print_r($message);
                 return isset($message->new_message?->forwarded_from);
             }
         };
@@ -308,8 +322,8 @@ class Filters {
 
     public static function location() {
         return new class {
-            public function match($message) {
-                return isset($message->new_message?->location);
+            public function match(Message $message) {
+                return isset($message->location);
             }
         };
     }
@@ -334,19 +348,19 @@ class Filters {
                 $this->expectedType = $expectedType;
             }
 
-            public function match($message) {
-                return isset($message->new_message?->sender_type)
-                    && $message->new_message->sender_type === $this->expectedType;
+            public function match(Message $message) {
+                return $message->sender_type !== null
+                    && $message->sender_type === $this->expectedType;
             }
         };
     }
 
     public static function metadata() {
         return new class {
-            public function match($message) {
-                return isset($message->new_message?->metadata?->meta_data_parts)
-                    && is_array($message->new_message->metadata->meta_data_parts)
-                    && count($message->new_message->metadata->meta_data_parts) > 0;
+            public function match(Message $message) {
+                return $message->meta_data_parts !== null
+                    && is_array($message->meta_data_parts)
+                    && count($message->meta_data_parts) > 0;
             }
         };
     }
@@ -409,5 +423,6 @@ class Filters {
         };
     }
 
-
 }
+
+?>
