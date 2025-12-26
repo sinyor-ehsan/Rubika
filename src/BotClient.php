@@ -171,7 +171,33 @@ class BotClient {
         }
     }
 
-    public function run($url_webhook=null, $path_webhook = "/webhook", $host = "0.0.0.0", $port = 8000, $set_webhook=true) {
+    public function run(): void
+    {
+
+        // دریافت ورودی
+        $body = file_get_contents("php://input");
+
+        if (!$body) {
+            echo "OK";
+            return;
+        }
+
+        $Data = json_decode($body);
+
+        if (!$Data) {
+            echo "OK";
+            return;
+        }
+
+        $this->rData = $Data;
+
+        $this->get_rData($Data);
+        $this->runHandlers();
+
+        echo "OK";
+    }
+
+    public function runTest($url_webhook=null, $path_webhook = "/webhook", $host = "0.0.0.0", $port = 8000, $set_webhook=true) {
         if ($set_webhook && $url_webhook !== null && $this->webhook === false) {
             $this->setWebhook($url_webhook . $path_webhook);
             $this->webhook = true;
@@ -221,7 +247,7 @@ class BotClient {
                 fclose($conn);
 
             } catch (\Exception $e) {
-                echo "خطا در polling: " . $e->getMessage() . PHP_EOL;
+                echo "خطا در webhook: " . $e->getMessage() . PHP_EOL;
             }
         }
     }
