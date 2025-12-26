@@ -240,7 +240,7 @@ $keypad->addRow([
 // ردیف دوم
 $keypad->addRow([
     KeypadInline::simpleButton("101", "Botkaplus 2"),
-    KeypadInline::simpleButton("101", "Botkaplus 2")
+    KeypadInline::simpleButton("102", "Botkaplus 3")
 ]);
 
 $inline_keypad = $keypad->build();
