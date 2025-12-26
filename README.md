@@ -58,10 +58,9 @@ use Botkaplus\Filters;
 use Botkaplus\Message;
 
 $token = "token_bot";
-$inData = file_get_contents('php://input');
-$Data = json_decode($inData);
 
-$bot = new BotClient($token, $Data);
+$bot = new BotClient($token);
+// $bot->setWebhook('https://domin.com/file_name.php');
 
 $bot->onMessage(Filters::text("hello"), function(BotClient $bot, Message $message) {
         $message->replyMessage("hello from Botkaplus!");
@@ -84,10 +83,9 @@ use Botkaplus\Message;
 echo "start\n";
 
 $token = "token_bot";
-$inData = file_get_contents('php://input');
-$Data = json_decode($inData);
 
-$bot = new BotClient(token: $token, rData: $Data);
+$bot = new BotClient(token: $token);
+// $bot->setWebhook('https://domin.com/file_name.php');
 
 $bot->onMessage(null, function(BotClient $bot, Message $message) {
     
@@ -118,10 +116,8 @@ $bot->onMessage(null, function(BotClient $bot, Message $message) {
         use Botkaplus\Message;
 
         $token = "token_bot";
-        $inData = file_get_contents('php://input');
-        $Data = json_decode($inData);
 
-        $bot = new BotClient($token, $Data);
+        $bot = new BotClient($token);
 
         $bot->onMessage(Filters::text("hello"), function(BotClient $bot, Message $message) {
             $message->replyMessage("hello from Botkaplus!");
@@ -154,11 +150,9 @@ use Botkaplus\Message;
 echo "start\n";
 
 $token = "token_bot";
-$inData = file_get_contents('php://input');
-$Data = json_decode($inData);
 
-$bot = new BotClient(token: $token, rData: $Data);
-
+$bot = new BotClient(token: $token);
+// $bot->setWebhook('https://domin.com/file_name.php');
 
 $bot->onMessage(null, function(BotClient $bot, Message $message) {
     $html = <<<'HTML'
@@ -179,10 +173,8 @@ $bot->onMessage(null, function(BotClient $bot, Message $message) {
         use Botkaplus\Message;
 
         $token = "token_bot";
-        $inData = file_get_contents('php://input');
-        $Data = json_decode(\$inData);
 
-        $bot = new BotClient(\$token, \$Data);
+        $bot = new BotClient($token);
 
         $bot->onMessage(Filters::text("hello"), function(BotClient $bot, Message $message) {
             $message->replyMessage("hello from Botkaplus!");
@@ -219,10 +211,9 @@ use Botkaplus\Message;
 echo "start\n";
 
 $token = "token_bot";
-$inData = file_get_contents('php://input');
-$Data = json_decode($inData);
 
-$bot = new BotClient(token: $token, rData: $Data);
+$bot = new BotClient(token: $token);
+// $bot->setWebhook('https://domin.com/file_name.php');
 
 $utils = new Utils();
 
@@ -270,7 +261,7 @@ $chat_keypad->addRow([
 // ردیف دوم
 $chat_keypad->addRow([
     KeypadChat::simpleButton("101", "Botkaplus 2"),
-    KeypadChat::simpleButton("101", "Botkaplus 3")
+    KeypadChat::simpleButton("102", "Botkaplus 3")
 ]);
 
 $chat_keypad->setResizeKeyboard(true);
