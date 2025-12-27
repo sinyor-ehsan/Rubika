@@ -58,7 +58,7 @@ class BotClient {
     }
 
     public function setWebhook($url_webhook) {
-        echo "fix endpoint Rubika\n";
+        echo "setting up Rubika endpoints ...\n";
         $endpoints = [
             "ReceiveUpdate",
             "ReceiveInlineMessage",
@@ -952,3 +952,4 @@ class BotClient {
 }
 
 ?>
+
