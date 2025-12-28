@@ -4,8 +4,8 @@ namespace Botkaplus;
 
 require_once 'Message/Message.php';
 require_once 'Filters/Filters.php';
-require_once 'Keypad/KeypadChat.php';
-require_once 'Keypad/KeypadInline.php';
+require_once 'Keypad/ChatKeypad.php';
+require_once 'Keypad/InlineKeypad.php';
 require_once 'Metadata/Metadata.php';
 require_once 'Metadata/Utils.php';
 require_once 'Metadata/Metadata_Mode.php';
@@ -94,7 +94,7 @@ class BotClient {
             usleep(500000);
         }
 
-        echo "the end!";
+        echo "the end!" . PHP_EOL;
     }
 
     // ثبت هندلر
@@ -304,6 +304,86 @@ class BotClient {
 
             } catch (\Exception $e) {
                 echo "خطا در polling: " . $e->getMessage() . PHP_EOL;
+                sleep(2);
+            }
+        }
+    }
+
+    public function runAdaptivePolling()
+    {
+        $offset_id = null;
+        $last_message_ids = [];
+
+        $sleepTime = 500000;          // 0.5 ثانیه
+        $maxSleepTime = 27000000;     // 27 ثانیه
+
+        while (true) {
+            try {
+                $response = $this->getUpdates(limit: 100, offset_id: $offset_id);
+
+                echo $sleepTime . PHP_EOL;
+
+                // اگر آپدیتی نبود
+                if (empty($response->data->updates)) {
+
+                    usleep($sleepTime);
+
+                    // افزایش تدریجی خواب (exponential backoff)
+                    $sleepTime = min($sleepTime * 2, $maxSleepTime);
+                    continue;
+                }
+
+                // اگر آپدیت داشت → ریست تایمر
+                $sleepTime = 500000;
+
+                foreach ($response->data->updates as $update) {
+
+                    if ($update->type === "RemovedMessage") {
+                        continue;
+                    }
+
+                    $time = null;
+                    $new_message_id = null;
+
+                    if (isset($update->new_message->time)) {
+                        $time = $update->new_message->time;
+                        $new_message_id = $update->new_message->message_id;
+                    } elseif (isset($update->updated_message->time)) {
+                        $time = time();
+                        $new_message_id = $update->updated_message->message_id;
+                    }
+
+                    if (!$new_message_id) {
+                        continue;
+                    }
+
+                    if (count($last_message_ids) >= 20) {
+                        array_shift($last_message_ids);
+                    }
+
+                    if ($this->has_time_passed($time, 10)) {
+                        continue;
+                    }
+
+                    if (!in_array($new_message_id, $last_message_ids, true)) {
+                        $last_message_ids[] = $new_message_id;
+                        $this->rData = (object)['update' => $update];
+                        $this->get_rData($this->rData);
+                        $this->runHandlers();
+                    }
+                }
+
+                if (isset($response->data->next_offset_id)) {
+                    $offset_id = $response->data->next_offset_id;
+                }
+
+                // تاخیر خیلی کوتاه بعد از پردازش موفق
+                usleep(100000);
+
+            } catch (\Exception $e) {
+                echo "خطا در polling: " . $e->getMessage() . PHP_EOL;
+
+                // در خطا هم کمی صبر کن
                 sleep(2);
             }
         }
@@ -952,4 +1032,3 @@ class BotClient {
 }
 
 ?>
-
