@@ -273,7 +273,7 @@ $message->replyMessage("send chat keypad!", chat_keypad:$chat_keypad);
 ```
 
 
-### 🧩 1. ساخت کیبورد Inline
+# 🧩 1. ساخت کیبورد Inline
 مثال کامل InlineKeypad
 ```php
 use Botkaplus\InlineKeypad;
@@ -309,7 +309,7 @@ $message->replyMessage("Inline keypad example", inline_keypad: $inline_keypad);
 ## - 🔄 ارسال همه دکمه‌ها به‌صورت InlineKeypad
 در Botkaplus، تقریباً تمام دکمه‌های ChatKeypad (به‌جز چند مورد خاص) می‌توانند به‌صورت Inline نیز ارسال شوند.
 
-### 🧩 2. ساخت کیبورد Chat (پیشرفته)
+# 🧩 2. ساخت کیبورد Chat (پیشرفته)
 کیبورد Chat شامل انواع دکمه‌های تعاملی است:
 - انتخاب (Selection)
 - تقویم (Calendar)
