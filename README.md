@@ -345,6 +345,14 @@ $button = ChatKeypad::buttonSelection(
 $button_simple = InlineKeypad::buttonSimple("Botkaplus_1", "Botkaplus 1");
 
 $keypad->addRow([$button, $button_simple]);
+// ساخت نهایی
+$keypad = $keypad->build();
+// ارسال $keypad با متد sendMessage
+```
+
+```php
+use Botkaplus\ChatKeypad;
+$keypad = new ChatKeypad();
 
 // دکمه تقویم
 $btn = ChatKeypad::buttonCalendar(
@@ -365,6 +373,15 @@ $btn_num = ChatKeypad::buttonNumberPicker(
     default_value: "10"
 );
 
+$keypad->addRow([$btn, $btn_num]);
+// ساخت نهایی
+$keypad = $keypad->build();
+```
+
+```php
+use Botkaplus\ChatKeypad;
+$keypad = new ChatKeypad();
+
 // دکمه انتخاب رشته
 $btn_str = ChatKeypad::buttonStringPicker(
     id: "pick1",
@@ -382,6 +399,15 @@ $btn_loc = ChatKeypad::buttonLocation(
     default_map_location: ["latitude" => 35.7000, "longitude" => 51.4000],
     title: "ارسال موقعیت"
 );
+
+$keypad->addRow([$but_str, $btn_loc]);
+// ساخت نهایی
+$keypad = $keypad->build();
+```
+
+```php
+use Botkaplus\ChatKeypad;
+$keypad = new ChatKeypad();
 
 $btn_tbo = ChatKeypad::buttonTextbox(
     id: "txt1",
