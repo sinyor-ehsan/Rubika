@@ -60,7 +60,7 @@ use Botkaplus\Message;
 $token = "token_bot";
 
 $bot = new BotClient($token);
-// $bot->setWebhook('https://domin.com/file_name.php');
+// $bot->setWebhook('https://yourdomain.com/botfile.php');
 
 $bot->onMessage(Filters::text("hello"), function(BotClient $bot, Message $message) {
         $message->replyMessage("hello from Botkaplus!");
@@ -85,7 +85,7 @@ echo "start\n";
 $token = "token_bot";
 
 $bot = new BotClient(token: $token);
-// $bot->setWebhook('https://domin.com/file_name.php');
+// $bot->setWebhook('https://yourdomain.com/botfile.php');
 
 $bot->onMessage(null, function(BotClient $bot, Message $message) {
     
@@ -152,7 +152,7 @@ echo "start\n";
 $token = "token_bot";
 
 $bot = new BotClient(token: $token);
-// $bot->setWebhook('https://domin.com/file_name.php');
+// $bot->setWebhook('https://yourdomain.com/botfile.php');
 
 $bot->onMessage(null, function(BotClient $bot, Message $message) {
     $html = <<<'HTML'
@@ -213,7 +213,7 @@ echo "start\n";
 $token = "token_bot";
 
 $bot = new BotClient(token: $token);
-// $bot->setWebhook('https://domin.com/file_name.php');
+// $bot->setWebhook('https://yourdomain.com/botfile.php');
 
 $utils = new Utils();
 
