@@ -272,6 +272,184 @@ $chat_keypad = $chat_keypad->build();
 $message->replyMessage("send chat keypad!", chat_keypad:$chat_keypad);
 ```
 
+
+##🧩 1. ساخت کیبورد Inline
+مثال کامل InlineKeypad
+```php
+use Botkaplus\InlineKeypad;
+
+$keypad = new InlineKeypad();
+
+// ردیف اول
+$keypad->addRow([
+    InlineKeypad::buttonSimple("Botkaplus_1", "Botkaplus 1")
+]);
+
+// ردیف دوم
+$keypad->addRow([
+    InlineKeypad::buttonSimple("Botkaplus_2", "Botkaplus 2"),
+    InlineKeypad::buttonSimple("Botkaplus_3", "Botkaplus 3")
+]);
+
+$linkBtn = InlineKeypad::buttonUrlLink(id: "link",title: "ورود به سایت", url: "https://example.com");
+
+$join_button = InlineKeypad::buttonJoinChannelData(id: "join_button", text:"کانال ما", username:"Botkaplus");
+
+$button_open_chat = InlineKeypad::buttonOpenChat(id:"open_chat", text:"باز کردن چت", object_guid:"u0aaaa", object_type:"User");
+
+// $keypad->addRow($linkBtn);
+
+$inline_keypad = $keypad->build();
+
+// ارسال پیام همراه با کیبورد
+$message->replyMessage("Inline keypad example", inline_keypad: $inline_keypad);
+```
+
+
+##- 🔄 ارسال همه دکمه‌ها به‌صورت InlineKeypad
+در Botkaplus، تقریباً تمام دکمه‌های ChatKeypad (به‌جز چند مورد خاص) می‌توانند به‌صورت Inline نیز ارسال شوند.
+
+##🧩 2. ساخت کیبورد Chat (پیشرفته)
+کیبورد Chat شامل انواع دکمه‌های تعاملی است:
+- انتخاب (Selection)
+- تقویم (Calendar)
+- انتخاب عدد (Number Picker)
+- انتخاب رشته (String Picker)
+- انتخاب موقعیت (Location Picker)
+- ورودی متنی (Textbox)
+- ارسال فایل، عکس، ویدیو، صوت
+- درخواست شماره/موقعیت کاربر
+- لینک
+- بارکد
+مثال کامل ChatKeypad
+```php
+use Botkaplus\ChatKeypad;
+
+$keypad = new ChatKeypad();
+
+// آیتم‌های انتخاب
+$items = [
+    ChatKeypad::selectionItem("سیب", "https://upload.wikimedia.org/wikipedia/commons/1/15/Red_Apple.jpg"),
+    ChatKeypad::selectionItem("موز", "https://upload.wikimedia.org/wikipedia/commons/8/8a/Banana-Single.jpg")
+];
+
+// دکمه انتخاب
+$button = ChatKeypad::buttonSelection(
+    id: "2",
+    text: "انتخاب میوه",
+    selection_id: "fruit_select_1",
+    title: "انتخاب میوه",
+    items: $items
+);
+
+$button_simple = InlineKeypad::buttonSimple("Botkaplus_1", "Botkaplus 1");
+
+$keypad->addRow([$button, $button_simple]);
+
+// دکمه تقویم
+$btn = ChatKeypad::buttonCalendar(
+    id: "cal1",
+    title: "انتخاب تاریخ",
+    type: "DatePersian",
+    default_value: "1402/01/01",
+    min_year: "1390",
+    max_year: "1410"
+);
+
+// دکمه انتخاب عدد
+$btn_num = ChatKeypad::buttonNumberPicker(
+    id: "num1",
+    title: "انتخاب عدد",
+    min_value: "1",
+    max_value: "100",
+    default_value: "10"
+);
+
+// دکمه انتخاب رشته
+$btn_str = ChatKeypad::buttonStringPicker(
+    id: "pick1",
+    title: "انتخاب رشته",
+    items: ["PHP", "Python", "Go", "Rust"],
+    default_value: "PHP"
+);
+
+// دکمه موقعیت
+$btn_loc = ChatKeypad::buttonLocation(
+    id: "loc1",
+    type: "Picker",
+    location_image_url: "https://example.com/location.png",
+    default_pointer_location: ["latitude" => 35.6892, "longitude" => 51.3890],
+    default_map_location: ["latitude" => 35.7000, "longitude" => 51.4000],
+    title: "ارسال موقعیت"
+);
+
+$btn_tbo = ChatKeypad::buttonTextbox(
+    id: "txt1",
+    title: "نام شما",
+    type_line: "SingleLine",
+    type_keypad: "String",
+    place_holder: "اینجا بنویسید...",
+    default_value: null
+);
+
+$btn_p = ChatKeypad::buttonPayment(
+    id: "pay1",
+    title: "پرداخت",
+    amount: 50000,
+    description: "پرداخت هزینه اشتراک"
+);
+
+// دکمه‌های رسانه
+$btn_camera = ChatKeypad::buttonCameraImage(id: "cam1", title: "ارسال عکس با دوربین");
+$btn_ca_v   = ChatKeypad::buttonCameraVideo(id: "camv1", title: "ارسال ویدیو با دوربین");
+$btn_g_im   = ChatKeypad::buttonGalleryImage(id: "gal1", title: "انتخاب عکس از گالری");
+$btn_g_vi   = ChatKeypad::buttonGalleryVideo(id: "gal2", title: "انتخاب ویدیو از گالری");
+$btnFile    = ChatKeypad::buttonFile(id: "file1", title: "ارسال فایل");
+$btnAudio   = ChatKeypad::buttonAudio(id: "audio1", title: "ارسال صوت");
+$btnRecord  = ChatKeypad::buttonRecordAudio(id: "rec1", title: "ارسال ویس");
+
+$btnPhone = ChatKeypad::buttonMyPhoneNumber(id: "phone1", title: "ارسال شماره من");
+
+$btnLocation = ChatKeypad::buttonMyLocation(id: "loc1", title: "ارسال موقعیت من");
+
+// لینک
+$btnLink = ChatKeypad::buttonLink(
+    id: "link1",
+    title: "ورود به سایت",
+    url: "https://rubika.ir"
+);
+
+$linkBtn = ChatKeypad::createLinkButton(title: "ورود به سایت", url: "https://example.com");
+
+// درخواست شماره و موقعیت
+$btnAskPhone = ChatKeypad::buttonAskMyPhoneNumber(id: "ask_phone", title: "ارسال شماره‌ام");
+$btnAskLocation = ChatKeypad::buttonAskLocation(id: "ask_loc", title: "ارسال موقعیت");
+
+// بارکد
+$barcodeBtn = ChatKeypad::buttonBarcode(id: "bar1", title: "اسکن بارکد");
+
+// اضافه کردن ردیف‌ها
+$keypad->addRow([$barcodeBtn, $btn_num]);
+$keypad->addRow([$btn_str, $btn_loc]);
+$keypad->addRow([$barcodeBtn]);
+
+// ساخت نهایی
+$keypad = $keypad->build();
+
+// ارسال پیام همراه با کیبورد
+$message->replyMessage("**hello __from ~~[Botkaplus!](https://github.com/sinyor-ehsan/Rubika)~~__**", chat_keypad: $keypad);
+```
+
+
+📦 خروجی نهایی
+هر دو نوع کیبورد در نهایت با متد build() ساخته می‌شوند و سپس در متد replyMessage() یا هر متد ارسال پیام (ارسال انواع فایل) دیگر قرار می‌گیرند.
+
+✨ نکات مهم
+- تمام دکمه‌ها Static Method هستند و ساختار یکپارچه دارند.
+- هر ردیف با addRow() اضافه می‌شود.
+- خروجی نهایی همیشه یک آرایهٔ JSON-ready است.
+
+
 # ادامه ندادن به هندلرهای بعدی
 ```php
 $bot->stopPropagation()
