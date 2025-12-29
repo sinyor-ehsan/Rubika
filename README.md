@@ -455,8 +455,8 @@ $btnAskLocation = ChatKeypad::buttonAskLocation(id: "ask_loc", title: "ارسا�
 $barcodeBtn = ChatKeypad::buttonBarcode(id: "bar1", title: "اسکن بارکد");
 
 // اضافه کردن ردیف‌ها
-$keypad->addRow([$barcodeBtn, $btn_num]);
-$keypad->addRow([$btn_str, $btn_loc]);
+$keypad->addRow([$barcodeBtn, $btn_tbo]);
+$keypad->addRow([$btn_camera, $btn_ca_v]);
 $keypad->addRow([$barcodeBtn]);
 
 // ساخت نهایی
