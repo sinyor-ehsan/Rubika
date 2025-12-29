@@ -25,28 +25,6 @@ Botkaplus Library for rubika bots.
 composer require sinyor-ehsan/botkaplus
 ```
 
-# شروع
-
-```php
-<?php
-
-require "vendor/autoload.php";
-use Botkaplus\BotClient;
-use Botkaplus\Message;
-
-echo "start\n";
-
-$bot = new BotClient(token: $token);
-
-$bot->onMessage(null, function(BotClient $bot, Message $message) {
-    $message->replyMessage("**hello __from ~~[Botkaplus!](https://github.com/sinyor-ehsan/Rubika)~~__**");
-});
-
-$bot->runPolling();
-
-?>
-```
-
 # شروع با webHook
 
 ```php
@@ -70,6 +48,29 @@ $bot->run();
 
 ?>
 ```
+
+# شروع
+
+```php
+<?php
+
+require "vendor/autoload.php";
+use Botkaplus\BotClient;
+use Botkaplus\Message;
+
+echo "start\n";
+
+$bot = new BotClient(token: $token);
+
+$bot->onMessage(null, function(BotClient $bot, Message $message) {
+    $message->replyMessage("**hello __from ~~[Botkaplus!](https://github.com/sinyor-ehsan/Rubika)~~__**");
+});
+
+$bot->runPolling();
+
+?>
+```
+
 
 # ارسال متادیتا markdown
 ```php
