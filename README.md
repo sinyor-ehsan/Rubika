@@ -229,19 +229,19 @@ $bot->run();
 
 # ارسال اینلاین کیبورد
 ```php
-use Botkaplus\KeypadInline;
+use Botkaplus\InlineKeypad;
 
-$keypad = new KeypadInline();
+$keypad = new InlineKeypad();
 
 // ردیف اول
 $keypad->addRow([
-    KeypadInline::simpleButton("100", "Botkaplus 1")
+    InlineKeypad::buttonSimple("Botkaplus_1", "Botkaplus 1")
 ]);
 
 // ردیف دوم
 $keypad->addRow([
-    KeypadInline::simpleButton("101", "Botkaplus 2"),
-    KeypadInline::simpleButton("102", "Botkaplus 3")
+    InlineKeypad::buttonSimple("Botkaplus_2", "Botkaplus 2"),
+    InlineKeypad::buttonSimple("Botkaplus_3", "Botkaplus 3")
 ]);
 
 $inline_keypad = $keypad->build();
@@ -250,19 +250,19 @@ $message->replyMessage("send inline keypad!", inline_keypad:$inline_keypad);
 
 # ارسال اینلاین Button
 ```php
-use Botkaplus\KeypadChat;
+use Botkaplus\ChatKeypad;
 
-$chat_keypad = new KeypadChat();
+$chat_keypad = new ChatKeypad();
 
 // ردیف اول
 $chat_keypad->addRow([
-    KeypadChat::simpleButton("100", "Botkaplus 1")
+    ChatKeypad::buttonSimple("100", "Botkaplus 1")
 ]);
 
 // ردیف دوم
 $chat_keypad->addRow([
-    KeypadChat::simpleButton("101", "Botkaplus 2"),
-    KeypadChat::simpleButton("102", "Botkaplus 3")
+    ChatKeypad::buttonSimple("101", "Botkaplus 2"),
+    ChatKeypad::buttonSimple("102", "Botkaplus 3")
 ]);
 
 $chat_keypad->setResizeKeyboard(true);
