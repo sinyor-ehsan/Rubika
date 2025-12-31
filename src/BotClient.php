@@ -543,7 +543,77 @@ class BotClient {
         return $this->bot(method:"getChat", data:["chat_id" => $chat_id]);
     }
 
-    public function forward_Message($from_chat_id, $messagee_id, $to_chat_id) {
+    public function getChatMember($chat_id, $user_id) {
+        $data = ["chat_id" => $chat_id, "user_id" => $user_id];
+        return $this->bot("getChatMember", $data);
+    }
+
+    public function pinChatMessage($chat_id, $message_id) {
+        $data = ["chat_id" => $chat_id, "message_id" => $message_id];
+        return $this->bot("pinChatMessage", $data);
+    }
+
+    public function unpinChatMessage($chat_id, $message_id) {
+        $data = ["chat_id" => $chat_id, "message_id" => $message_id];
+        return $this->bot("unpinChatMessage", $data);
+    }
+
+    public function unpinAllChatMessages($chat_id, $message_id=null) {
+        $data = ["chat_id" => $chat_id];
+        if ($message_id !== null) {$data["message_id"] = $message_id;}
+        return $this->bot("unpinAllChatMessages", $data);
+    }
+
+    public function getChatAdministrators($chat_id) {
+        return $this->bot("getChatAdministrators", ["chat_id" => $chat_id]);
+    }
+
+    public function getChatMemberCount($chat_id) {
+        return $this->bot("getChatMemberCount", ["chat_id" => $chat_id]);
+    }
+
+    public function banChatMember($chat_id, $user_id) {
+        $data = ["chat_id" => $chat_id, "user_id" => $user_id];
+        return $this->bot("banChatMember", $data);
+    }
+
+    public function unbanChatMember($chat_id, $user_id) {
+        $data = ["chat_id" => $chat_id, "user_id" => $user_id];
+        return $this->bot("unbanChatMember", $data);
+    }
+
+    public function getMessagesById(string|array $message_ids) {
+        if (!is_array($message_ids)) {$message_ids = [$message_ids];}
+
+        $response = $this->getUpdates(limit: 100);
+
+        if (empty($response->data->updates)) {return [];}
+
+        $foundMessages = [];
+
+        foreach ($response->data->updates as $update) {
+
+            if (isset($update->new_message)) {
+                $msg = $update->new_message;
+
+                if (in_array($msg->message_id, $message_ids)) {
+                    $foundMessages[$msg->message_id] = $update;
+                }
+            }
+
+            if (isset($update->updated_message)) {
+                $msg = $update->updated_message;
+
+                if (in_array($msg->message_id, $message_ids)) {
+                    $foundMessages[$msg->message_id] = $update;
+                }
+            }
+        }
+
+        return $foundMessages;
+    }
+
+    public function forwardMessage($from_chat_id, $messagee_id, $to_chat_id) {
         $data_send = [
             "from_chat_id" => $from_chat_id,
             "message_id" => $messagee_id,
